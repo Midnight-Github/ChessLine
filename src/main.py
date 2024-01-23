@@ -1,4 +1,4 @@
-from os import path
+from ui.manager import Manager
 
-with open(path.dirname(path.abspath(__file__)) + "/ui/manager.py") as f:
-    exec(f.read())
+if __name__ == "__main__":
+    Manager().mainloop()

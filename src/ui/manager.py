@@ -1,8 +1,8 @@
-import tkinter as tk
 import customtkinter as ctk
 from ui.menu import Menu
 from ui.settings import Settings
 from ui.home import Home
+from ui.profile import Profile
 
 GEOMETRY = "620x500+200+50"
 
@@ -20,13 +20,10 @@ class Manager(ctk.CTk):
         menu_frame.grid(row=0, column=0, sticky="news")
 
         self.frames = {}
-        for Frame in (Settings, Home):
+        for Frame in (Profile, Settings, Home):
             frame = Frame(self)
             self.frames[Frame] = frame
             frame.grid(row=0, column=1, sticky="nsew")
 
     def showFrame(self, frame):
         self.frames[frame].tkraise()
-
-if __name__ == "__main__":
-    Manager().mainloop()
