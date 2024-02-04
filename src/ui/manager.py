@@ -28,15 +28,33 @@ class Manager(ctk.CTk):
         menu_frame.grid(row=0, column=0, sticky="news")
 
         home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
-        pages = (Profile, Settings, Home) + home
+        self.pages = (Profile, Settings, Home) + home
 
         self.frames = {}
-        for Frame in (pages):
+        for Frame in (self.pages):
             frame = Frame(self)
-            self.frames[Frame] = frame
+            self.frames[self.__frameToStr(Frame)] = frame
             frame.grid(row=0, column=1, sticky="nsew")
 
-        self.showFrame(Home)
+        self.showFrame("Home")
+
+    def __frameToStr(self, frame):
+        return str(frame).split('.')[-1][:-2]
+
+    def __strToFrame(self, string):
+        for i in self.pages:
+            if string == self.__frameToStr(i):
+                return i
+        raise ValueError("String does not match with any frame objects")
 
     def showFrame(self, frame):
         self.frames[frame].tkraise()
+
+    def deleteFrame(self, frame):
+        self.frames[frame].destroy()
+
+    def initFrame(self, frame):
+        new_frame = self.__strToFrame(frame)(self)
+        self.frames[frame] = new_frame
+        new_frame.grid(row=0, column=1, sticky="nsew")
+        

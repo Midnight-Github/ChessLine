@@ -1,12 +1,11 @@
 import customtkinter as ctk
 from ui.structure import MainPage
-from ui.offline.new import OfflineNewGame
-from ui.offline.open import OfflineOpenGame
-from ui.offline.create import OfflineCreateGame
 
 class Home(MainPage):
     def __init__(self, root):
         super().__init__(root, heading="Home")
+
+        self.root = root
 
         #Main frame layout
         self.frame.grid_columnconfigure(1, weight=1)
@@ -33,6 +32,10 @@ class Home(MainPage):
             b.grid(row=row, column=0, sticky="nesw", padx=10, pady=10)
             return b
 
-        offline_new = offline_button(text="New Offline Game", row=0, command=lambda : root.showFrame(OfflineNewGame))
-        offline_open = offline_button(text="Open Offline Game", row=1, command=lambda : root.showFrame(OfflineOpenGame))
-        offline_create = offline_button(text="Create Game", row=2, command=lambda : root.showFrame(OfflineCreateGame))
+        offline_new = offline_button(text="New Game", row=0, command=lambda : self.launch("OfflineNewGame"))
+        offline_open = offline_button(text="Open Game", row=1, command=lambda : self.launch("OfflineOpenGame"))
+        offline_create = offline_button(text="Create Game", row=2, command=lambda : self.launch("OfflineCreateGame"))
+
+    def launch(self, frame):
+        self.root.initFrame(frame)
+        self.root.showFrame(frame)
