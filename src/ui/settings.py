@@ -44,6 +44,7 @@ class Configuration():
         self.game_config = self.pull()
 
     def pull(self):
+        # update self.game_config instead and use with to open
         return json.loads(open(self.config_path, 'r').read())
 
     def push(self):
