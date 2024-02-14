@@ -3,13 +3,23 @@ from ui.menu import Menu
 from ui.settings import Settings
 from ui.home import Home
 from ui.profile import Profile
-from ui.offline.new import OfflineNewGame
-from ui.offline.open import OfflineOpenGame
-from ui.offline.create import OfflineCreateGame
+from ui.offlineNewGame import OfflineNewGame
+from ui.offlineOpenGame import OfflineOpenGame
+from ui.offlineCreateGame import OfflineCreateGame
 
 class Manager(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        self.main_pages = (Profile, Settings, Home)
+
+        home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
+        self.pages = self.main_pages + home
+
+        self.active_pages = {}
+        for i in self.main_pages:
+            i = self.__frameToStr(i)
+            self.active_pages[i] = i
 
         WIDTH = 850
         HEIGHT = 450
@@ -27,11 +37,8 @@ class Manager(ctk.CTk):
         menu_frame = Menu(self)
         menu_frame.grid(row=0, column=0, sticky="news")
 
-        home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
-        self.pages = (Profile, Settings, Home) + home
-
         self.frames = {}
-        for Frame in (self.pages):
+        for Frame in (self.main_pages):
             frame = Frame(self)
             self.frames[self.__frameToStr(Frame)] = frame
             frame.grid(row=0, column=1, sticky="nsew")
@@ -47,8 +54,15 @@ class Manager(ctk.CTk):
                 return i
         raise ValueError("String does not match with any frame objects")
 
-    def showFrame(self, frame):
-        self.frames[frame].tkraise()
+    def setActivePage(self, main_frame, sub_frame):
+        self.active_pages[main_frame] = sub_frame
+
+
+    def showFrame(self, frame, forced=False):
+        if forced:
+            self.frames[frame].tkraise()
+            return
+        self.frames[self.active_pages[frame]].tkraise()
 
     def deleteFrame(self, frame):
         self.frames[frame].destroy()

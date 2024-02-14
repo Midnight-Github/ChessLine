@@ -1,12 +1,12 @@
 import customtkinter as ctk
-from ui.settings import Configuration
+from engine.settings import settings
 
 class OfflineNewGame(ctk.CTkFrame):
     def __init__(self, root):
         super().__init__(root, fg_color="transparent")
         self.root = root
 
-        board_size = Configuration().game_config["board_size"]
+        board_size = settings.config["board_size"]
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -21,6 +21,7 @@ class OfflineNewGame(ctk.CTkFrame):
         quit_button.grid(row=0, column=0)
     
     def quitFrame(self): #add confirmation box
+        self.root.setActivePage("Home", "Home")
         self.root.deleteFrame("OfflineNewGame")
         # self.root.initFrame("OfflineNewGame")
         self.root.showFrame("Home")

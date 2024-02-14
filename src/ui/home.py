@@ -37,5 +37,6 @@ class Home(MainPage):
         offline_create = offline_button(text="Create Game", row=2, command=lambda : self.launch("OfflineCreateGame"))
 
     def launch(self, frame):
+        self.root.setActivePage("Home", frame)
         self.root.initFrame(frame)
-        self.root.showFrame(frame)
+        self.root.showFrame("Home")
