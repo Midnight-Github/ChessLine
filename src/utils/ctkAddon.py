@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 
-def scale(master, text, default, from_, to, row, column, step, padx=0, pady=0, label_sticky='w', fg_color="transparent"):
+def labeledScale(master, text, default, from_, to, row, column, step, padx=0, pady=0, label_sticky='w', fg_color="transparent"):
     container = ctk.CTkFrame(master, fg_color=fg_color)
     container.grid(row=row, column=column, padx=padx, pady=pady)
     label_text = tk.StringVar(value=f"{text}: {default}")

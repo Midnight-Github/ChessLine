@@ -12,9 +12,8 @@ class Manager(ctk.CTk):
         super().__init__()
 
         self.main_pages = (Profile, Settings, Home)
-
-        home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
-        self.pages = self.main_pages + home
+        self.home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
+        self.pages = self.main_pages + self.home
 
         self.active_pages = {}
         for i in self.main_pages:
@@ -34,14 +33,14 @@ class Manager(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        menu_frame = Menu(self)
-        menu_frame.grid(row=0, column=0, sticky="news")
-
         self.frames = {}
         for Frame in (self.main_pages):
             frame = Frame(self)
             self.frames[self.__frameToStr(Frame)] = frame
             frame.grid(row=0, column=1, sticky="nsew")
+
+        self.menu = Menu(self)
+        self.menu.grid(row=0, column=0, sticky="news")
 
         self.showFrame("Home")
 
@@ -54,11 +53,17 @@ class Manager(ctk.CTk):
                 return i
         raise ValueError("String does not match with any frame objects")
 
+    def __getMainPage(self, frame):
+        if self.__strToFrame(frame) in self.main_pages:
+            return frame
+        if self.__strToFrame(frame) in self.home:
+            return "Home"
+
     def setActivePage(self, main_frame, sub_frame):
         self.active_pages[main_frame] = sub_frame
 
-
     def showFrame(self, frame, forced=False):
+        self.menu.focusButton(self.__getMainPage(frame))
         if forced:
             self.frames[frame].tkraise()
             return
