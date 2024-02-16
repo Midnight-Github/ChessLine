@@ -1,7 +1,7 @@
 import customtkinter as ctk
-from ui.structure import MainPage
+from ui.MainPageStructure import MainPageStructure
 
-class Home(MainPage):
+class Home(MainPageStructure):
     def __init__(self, root):
         super().__init__(root, heading="Home")
 

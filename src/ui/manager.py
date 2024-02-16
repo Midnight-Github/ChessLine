@@ -1,17 +1,17 @@
 import customtkinter as ctk
-from ui.menu import Menu
-from ui.settings import Settings
-from ui.home import Home
-from ui.profile import Profile
-from ui.offlineNewGame import OfflineNewGame
-from ui.offlineOpenGame import OfflineOpenGame
-from ui.offlineCreateGame import OfflineCreateGame
+from ui.Menu import Menu
+from ui.Setting import Setting
+from ui.Home import Home
+from ui.Profile import Profile
+from ui.OfflineNewGame import OfflineNewGame
+from ui.OfflineOpenGame import OfflineOpenGame
+from ui.OfflineCreateGame import OfflineCreateGame
 
 class Manager(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.main_pages = (Profile, Settings, Home)
+        self.main_pages = (Profile, Setting, Home)
         self.home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
         self.pages = self.main_pages + self.home
 
@@ -51,7 +51,7 @@ class Manager(ctk.CTk):
         for i in self.pages:
             if string == self.__frameToStr(i):
                 return i
-        raise ValueError("String does not match with any frame objects")
+        raise ValueError(string, "does not match with any frame objects")
 
     def __getMainPage(self, frame):
         if self.__strToFrame(frame) in self.main_pages:

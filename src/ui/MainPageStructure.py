@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-class MainPage(ctk.CTkFrame):
+class MainPageStructure(ctk.CTkFrame):
     def __init__(self, root, heading):
         super().__init__(root, fg_color="transparent")
 

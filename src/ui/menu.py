@@ -10,7 +10,7 @@ class Menu(ctk.CTkFrame):
         self.menu_label.grid(row=0, column=0, pady=10, padx=10)
 
         self.home_button = self.makeButton(text="Home", row=1, command=lambda: root.showFrame("Home"))
-        self.settings_button = self.makeButton(text="Settings", row=2, command=lambda: root.showFrame("Settings"))
+        self.settings_button = self.makeButton(text="Setting", row=2, command=lambda: root.showFrame("Setting"))
         self.profile_button = self.makeButton(text="Profile", row=4, pady=(0, 15), command=lambda: root.showFrame("Profile"))
 
     def makeButton(self, text, row, command=None, pady=10):
@@ -26,7 +26,7 @@ class Menu(ctk.CTkFrame):
         match(button):
             case "Home":
                 self.home_button.configure(state='disabled')
-            case "Settings":
+            case "Setting":
                 self.settings_button.configure(state='disabled')
             case "Profile":
                 self.profile_button.configure(state='disabled')        
