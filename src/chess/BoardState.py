@@ -1,6 +1,6 @@
-from engine.Errors import *
-from engine.VerifyMove import VerifyMove
-from engine.Piece import Piece
+from chess.Errors import *
+from chess.VerifyMove import VerifyMove
+from chess.Piece import Piece
 from copy import copy, deepcopy
 
 class BoardState:
@@ -179,15 +179,7 @@ class BoardState:
         self.__move_history = move_history
 
     def getBoard(self):
-        board = []
-        for i in range(64):
-            board.append([
-                self.__board[i].name, 
-                self.__board[i].col, 
-                self.__board[i].moved, 
-                self.__board[i].moved_again
-            ])
-        return board
+        return self.__board
 
     def setBoard(self, board):
         for i in range(64):

@@ -1,4 +1,4 @@
-from engine.Errors import *
+from chess.Errors import *
 
 class VerifyMove:
     def __init__(self, board) -> None:
