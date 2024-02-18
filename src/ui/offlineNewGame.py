@@ -18,9 +18,38 @@ class OfflineNewGame(ctk.CTkFrame):
         self.board_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.board_frame.grid(row=0, column=0, sticky="nesw")
         self.board_frame.bind("<Configure>", self.updateBoard)
+        self.board_frame.grid_rowconfigure(1, weight=1)
+        self.board_frame.grid_columnconfigure(0, weight=1)
 
-        self.chess = Chess(self.board_frame, *self.mainFrameSize())
+        self.black_ui = ctk.CTkFrame(self.board_frame)
+        self.black_ui.grid(row=0, column=0, padx=10, pady=10, sticky="nesw")
+        self.black_ui.grid_columnconfigure(1, weight=1)
+        self.__setUpBlackUi()
+
+        self.white_ui = ctk.CTkFrame(self.board_frame)
+        self.white_ui.grid(row=2, column=0, padx=10, pady=10, sticky="nesw")
+        self.white_ui.grid_columnconfigure(1, weight=1)
+        self.__setUpWhiteUi()
+
+        self.board_canvas = ctk.CTkCanvas(self.board_frame, height=size, width=size)
+        self.board_canvas.grid(row=1, column=0)
+
+        self.chess = Chess()
+
+    def __setUpBlackUi(self):
+        self.black_name_label = ctk.CTkLabel(self.black_ui, text=self.name[1])
+        self.black_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
+
+        self.black_timer_label = ctk.CTkLabel(self.black_ui, textvariable=self.timer[1])
+        self.black_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
     
+    def __setUpWhiteUi(self):
+        self.white_name_label = ctk.CTkLabel(self.white_ui, text=self.name[0])
+        self.white_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
+
+        self.white_timer_label = ctk.CTkLabel(self.white_ui, textvariable=self.timer[0])
+        self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
+
     def quitFrame(self): #add confirmation box
         self.root.setActivePage("Home", "Home")
         self.root.deleteFrame("OfflineNewGame")
