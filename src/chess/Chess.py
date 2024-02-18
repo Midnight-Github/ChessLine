@@ -50,10 +50,8 @@ class Chess:
         self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
     def __getBoardSize(self):
-        print(self.board_frame.winfo_height(), self.board_frame.winfo_width())
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, self.board_frame.winfo_width() - 20)
 
     def updateGame(self):
         size = self.__getBoardSize()
-        print(size)
         self.board_canvas.configure(height=size, width=size)

@@ -19,7 +19,7 @@ class Manager(ctk.CTk):
         for i in self.main_pages:
             i = self.__frameToStr(i)
             self.active_pages[i] = i
-
+            
         WIDTH = 850
         HEIGHT = 450
         MONITOR_X = self.winfo_screenwidth()//2 - WIDTH//2
