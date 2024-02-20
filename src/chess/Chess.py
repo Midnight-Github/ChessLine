@@ -53,5 +53,9 @@ class Chess:
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, self.board_frame.winfo_width() - 20)
 
     def updateGame(self):
+        self.board_canvas.delete("all")
         size = self.__getBoardSize()
         self.board_canvas.configure(height=size, width=size)
+
+        # draw board
+        
