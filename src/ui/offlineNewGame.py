@@ -27,7 +27,7 @@ class OfflineNewGame(ctk.CTkFrame):
 
         self.chess = Chess(self.board_frame)
     
-    def quitFrame(self): #add confirmation box
+    def quitFrame(self):
         warning_popup = CTkMessagebox(title="Quit", message="Do you want to quit?",
                         icon="question", option_1="No", option_2="Yes")
 

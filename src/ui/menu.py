@@ -13,7 +13,7 @@ class Menu(ctk.CTkFrame):
         self.settings_button = self.makeButton(text="Setting", row=2, command=lambda: root.showFrame("Setting"))
         self.profile_button = self.makeButton(text="Profile", row=4, pady=(0, 15), command=lambda: root.showFrame("Profile"))
 
-    def makeButton(self, text, row, command=None, pady=10):
+    def makeButton(self, text, row, command=None, pady=(10, 10)):
         button = ctk.CTkButton(self, text=text, width=80, command=command)
         button.grid(row=row, column=0, pady=pady, padx=10, ipadx=10)
         return button
