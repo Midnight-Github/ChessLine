@@ -6,10 +6,13 @@ from ui.Profile import Profile
 from ui.OfflineNewGame import OfflineNewGame
 from ui.OfflineOpenGame import OfflineOpenGame
 from ui.OfflineCreateGame import OfflineCreateGame
+from reader.Toml import configurator
 
 class Manager(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        self.commitConfigurator()
 
         self.main_pages = (Profile, Setting, Home)
         self.home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
@@ -17,7 +20,7 @@ class Manager(ctk.CTk):
 
         self.active_pages = {}
         for i in self.main_pages:
-            i = self.__frameToStr(i)
+            i = self.frameToStr(i)
             self.active_pages[i] = i
             
         WIDTH = 850
@@ -36,7 +39,7 @@ class Manager(ctk.CTk):
         self.frames = {}
         for Frame in (self.main_pages):
             frame = Frame(self)
-            self.frames[self.__frameToStr(Frame)] = frame
+            self.frames[self.frameToStr(Frame)] = frame
             frame.grid(row=0, column=1, sticky="nsew")
 
         self.menu = Menu(self)
@@ -44,26 +47,30 @@ class Manager(ctk.CTk):
 
         self.showFrame("Home")
 
-    def __frameToStr(self, frame):
+    def commitConfigurator(self):
+        ctk.set_appearance_mode(configurator.config["appearance"]["system_theme"])
+        ctk.set_default_color_theme(configurator.config["appearance"]["color_theme"])
+
+    def frameToStr(self, frame):
         return str(frame).split('.')[-1][:-2]
 
-    def __strToFrame(self, string):
+    def strToFrame(self, string):
         for i in self.pages:
-            if string == self.__frameToStr(i):
+            if string == self.frameToStr(i):
                 return i
         raise ValueError(string, "does not match with any frame objects")
 
-    def __getMainPage(self, frame):
-        if self.__strToFrame(frame) in self.main_pages:
+    def getMainPage(self, frame):
+        if self.strToFrame(frame) in self.main_pages:
             return frame
-        if self.__strToFrame(frame) in self.home:
+        if self.strToFrame(frame) in self.home:
             return "Home"
 
     def setActivePage(self, main_frame, sub_frame):
         self.active_pages[main_frame] = sub_frame
 
     def showFrame(self, frame, forced=False):
-        self.menu.focusButton(self.__getMainPage(frame))
+        self.menu.focusButton(self.getMainPage(frame))
         if forced:
             self.frames[frame].tkraise()
             return
@@ -73,7 +80,7 @@ class Manager(ctk.CTk):
         self.frames[frame].destroy()
 
     def initFrame(self, frame):
-        new_frame = self.__strToFrame(frame)(self)
+        new_frame = self.strToFrame(frame)(self)
         self.frames[frame] = new_frame
         new_frame.grid(row=0, column=1, sticky="nsew")
         

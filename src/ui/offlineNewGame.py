@@ -13,7 +13,7 @@ class OfflineNewGame(ctk.CTkFrame):
         self.side_bar = ctk.CTkTabview(self)
         self.side_bar.add("Game")
         self.side_bar.add("History")
-        self.side_bar.grid(row=0, column=1, sticky="news")
+        self.side_bar.grid(row=0, column=1, padx=(0, 10), pady=(0, 10), sticky="news")
 
         self.quit_button = ctk.CTkButton(self.side_bar.tab("Game"), text="Quit", command=self.quitFrame)
         self.quit_button.grid(row=0, column=0, padx=(10, 0))

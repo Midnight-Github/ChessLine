@@ -1,7 +1,7 @@
 from os import path
 import toml
 
-class __Setting():
+class Toml():
     def __init__(self, path):
         self.path = path
         self.pull()
@@ -14,5 +14,5 @@ class __Setting():
         with open(self.path, 'w') as file:
             toml.dump(self.config, file)
 
-#settings.config[<head>][<key>]
-settings = __Setting(path.join(path.dirname(__file__) + "\\..\\data\\config.toml"))
+#configurator.config[<head>][<key>]
+configurator = Toml(path.join(path.dirname(__file__) + "\\..\\data\\config.toml"))
