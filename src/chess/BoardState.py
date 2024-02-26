@@ -114,7 +114,7 @@ class BoardState:
         else:
             self.__move(start_pos, end_pos, move)
                 
-    def makeMove(self, start_pos, end_pos, turn, move):
+    def push(self, start_pos, end_pos, turn, move):
         board_backup = deepcopy(self.__board)
         move_history_backup = copy(self.__move_history)
         col = self.__board[start_pos].col

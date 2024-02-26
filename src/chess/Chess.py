@@ -8,7 +8,7 @@ class Chess:
     def __init__(self, board_frame, name=('', ''), timer=(600, 600)):
         self.board_frame = board_frame
         self.name = (name[0] + " (White)", name[1] + " (Black)")
-        self.timer = (tk.StringVar(value=self.__formatTime(timer[0])), tk.StringVar(value=self.__formatTime(timer[1])))
+        self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
 
         self.board_frame.grid_rowconfigure(1, weight=1)
         self.board_frame.grid_columnconfigure(0, weight=1)
@@ -16,46 +16,62 @@ class Chess:
         self.black_ui = ctk.CTkFrame(self.board_frame)
         self.black_ui.grid(row=0, column=0, padx=10, pady=10, sticky="nesw")
         self.black_ui.grid_columnconfigure(1, weight=1)
-        self.__setUpBlackUi()
+        self.setUpBlackUi()
 
         self.board_canvas = ctk.CTkCanvas(self.board_frame)
+        self.board_canvas.bind("<ButtonPress-1>", self.boardPressEvent)
         self.board_canvas.grid(row=1, column=0, padx=10)
 
         self.white_ui = ctk.CTkFrame(self.board_frame)
         self.white_ui.grid(row=2, column=0, padx=10, pady=10, sticky="nesw")
         self.white_ui.grid_columnconfigure(1, weight=1)
-        self.__setUpWhiteUi()
+        self.setUpWhiteUi()
 
         self.turn = True
         self.preview = False
 
-    def __formatTime(self, t):
+    def formatTime(self, t):
         insert_0 = lambda t: t if len(t) == 2 else '0' + t
         mins = str(t//60)
         secs = str(t%6)
         return f"{insert_0(mins)}:{insert_0(secs)}"
 
-    def __setUpBlackUi(self):
+    def setUpBlackUi(self):
         self.black_name_label = ctk.CTkLabel(self.black_ui, text=self.name[1])
         self.black_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
 
         self.black_timer_label = ctk.CTkLabel(self.black_ui, textvariable=self.timer[1])
         self.black_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
-    def __setUpWhiteUi(self):
+    def setUpWhiteUi(self):
         self.white_name_label = ctk.CTkLabel(self.white_ui, text=self.name[0])
         self.white_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
 
         self.white_timer_label = ctk.CTkLabel(self.white_ui, textvariable=self.timer[0])
         self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
-    def __getBoardSize(self):
+    def getBoardSize(self):
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, self.board_frame.winfo_width() - 20)
+
+    def boardPressEvent(self, e):
+        pass
+
+    def drawBoard(self, size):
+        box_colors = ("white", "Black") # add settings to change black color
+        box_size = (size)/8
+        for i in range(8):
+            for j in range(8):
+                self.board_canvas.create_rectangle( j*box_size, 
+                                                    i*box_size, 
+                                                    j*box_size + box_size, 
+                                                    i*box_size + box_size,
+                                                    fill=box_colors[(i+j)%2])
+                
 
     def updateGame(self):
         self.board_canvas.delete("all")
-        size = self.__getBoardSize()
+        size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
 
-        # draw board
+        self.drawBoard(size)
         

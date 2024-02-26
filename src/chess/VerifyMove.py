@@ -311,3 +311,5 @@ class VerifyMove:
                 return self.__queen(pos, col)
             case 'K': 
                 return self.__king(pos, col) + self.__castling(pos, col)
+            case _:
+                raise ValueError("Unsupported piece found:", name)
