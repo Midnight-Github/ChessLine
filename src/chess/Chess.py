@@ -57,15 +57,34 @@ class Chess:
         pass
 
     def drawBoard(self, size):
-        box_colors = ("white", "Black") # add settings to change black color
+        box_colors = ("white", "gray25") # add settings to change color at index 1
         box_size = (size)/8
-        for i in range(8):
-            for j in range(8):
-                self.board_canvas.create_rectangle( j*box_size, 
-                                                    i*box_size, 
-                                                    j*box_size + box_size, 
-                                                    i*box_size + box_size,
-                                                    fill=box_colors[(i+j)%2])
+        for y in range(8):
+            for x in range(8):
+                self.board_canvas.create_rectangle( 
+                    x*box_size, 
+                    y*box_size, 
+                    x*box_size + box_size, 
+                    y*box_size + box_size,
+                    fill=box_colors[(y+x)%2]
+                )
+                if x == 0:
+                    self.board_canvas.create_text(  
+                        x*box_size + box_size/7, 
+                        y*box_size + box_size/7, 
+                        text=str(8 - y), 
+                        font=ctk.CTkFont(size=abs(int(box_size//5)), 
+                        weight="bold")
+                    )
+
+                if y == 7:
+                    self.board_canvas.create_text( 
+                        x*box_size + (box_size - box_size/7), 
+                        y*box_size + (box_size - box_size/7), 
+                        text=chr(65 + x), 
+                        font=ctk.CTkFont(size=abs(int(box_size//5)), 
+                        weight="bold")
+                    )
                 
 
     def updateGame(self):

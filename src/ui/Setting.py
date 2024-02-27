@@ -44,6 +44,7 @@ class Setting(MainPageStructure):
 
         self.appearance_label_frame = ctk.CTkFrame(self.appearance_frame, border_width=2)
         self.appearance_label_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nesw")
+        self.appearance_label_frame.grid_columnconfigure(0, weight=1)
         self.appearance_label = ctk.CTkLabel(self.appearance_label_frame, text="Appearance", font=ctk.CTkFont(size=20))
         self.appearance_label.grid(row=0, column=0, padx=5, pady=5, sticky="nesw")
 
@@ -54,8 +55,10 @@ class Setting(MainPageStructure):
         row=1, column=1, padx=(0, 5), pady=(0, 5), value=self.color_themes.index(self.configurator.config["appearance"]["color_theme"]), command=self.checkChanges)
 
     def checkChanges(self):
-        changes = [ self.configurator.config["appearance"]["system_theme"] != self.system_themes[self.system_theme.get()],
-                    self.configurator.config["appearance"]["color_theme"] != self.color_themes[self.color_theme.get()]]
+        changes = [ 
+            self.configurator.config["appearance"]["system_theme"] != self.system_themes[self.system_theme.get()],
+            self.configurator.config["appearance"]["color_theme"] != self.color_themes[self.color_theme.get()]
+        ]
         
         if any(changes):
             self.enableButtons()
