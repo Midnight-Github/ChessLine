@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 from chess.BoardState import BoardState
+from math import floor
 
 board = BoardState()
 
@@ -9,6 +10,7 @@ class Chess:
         self.board_frame = board_frame
         self.name = (name[0] + " (White)", name[1] + " (Black)")
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
+        self.board = board.getBoard()
 
         self.board_frame.grid_rowconfigure(1, weight=1)
         self.board_frame.grid_columnconfigure(0, weight=1)
@@ -16,7 +18,7 @@ class Chess:
         self.black_ui = ctk.CTkFrame(self.board_frame)
         self.black_ui.grid(row=0, column=0, padx=10, pady=10, sticky="nesw")
         self.black_ui.grid_columnconfigure(1, weight=1)
-        self.setUpBlackUi()
+        self.setBlackUi()
 
         self.board_canvas = ctk.CTkCanvas(self.board_frame)
         self.board_canvas.bind("<ButtonPress-1>", self.boardPressEvent)
@@ -25,7 +27,7 @@ class Chess:
         self.white_ui = ctk.CTkFrame(self.board_frame)
         self.white_ui.grid(row=2, column=0, padx=10, pady=10, sticky="nesw")
         self.white_ui.grid_columnconfigure(1, weight=1)
-        self.setUpWhiteUi()
+        self.setWhiteUi()
 
         self.turn = True
         self.preview = False
@@ -36,14 +38,14 @@ class Chess:
         secs = str(t%6)
         return f"{insert_0(mins)}:{insert_0(secs)}"
 
-    def setUpBlackUi(self):
+    def setBlackUi(self):
         self.black_name_label = ctk.CTkLabel(self.black_ui, text=self.name[1])
         self.black_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
 
         self.black_timer_label = ctk.CTkLabel(self.black_ui, textvariable=self.timer[1])
         self.black_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
-    def setUpWhiteUi(self):
+    def setWhiteUi(self):
         self.white_name_label = ctk.CTkLabel(self.white_ui, text=self.name[0])
         self.white_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
 
@@ -53,12 +55,19 @@ class Chess:
     def getBoardSize(self):
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, self.board_frame.winfo_width() - 20)
 
-    def boardPressEvent(self, e):
-        pass
+    def convertCoordToPos(self, x, y):
+        box_size = (self.getBoardSize())/8
+        return floor((x + box_size)/box_size) - 1, floor((y + box_size)/box_size) - 1
 
-    def drawBoard(self, size):
+    def boardPressEvent(self, e):
+        x, y = self.convertCoordToPos(e.x, e.y)
+        index = (8*y) + x
+
+    def drawBoard(self, face="white"):
+        self.board_canvas.delete("all")
         box_colors = ("white", "gray25") # add settings to change color at index 1
-        box_size = (size)/8
+        box_size = (self.getBoardSize())/8
+        board_index = 0
         for y in range(8):
             for x in range(8):
                 self.board_canvas.create_rectangle( 
@@ -66,31 +75,35 @@ class Chess:
                     y*box_size, 
                     x*box_size + box_size, 
                     y*box_size + box_size,
-                    fill=box_colors[(y+x)%2]
+                    fill=box_colors[(x + y)%2]
                 )
+                if self.board[board_index].name != 'E':
+                    self.board_canvas.create_text(
+                        x*box_size + box_size//2, 
+                        y*box_size + box_size//2,
+                        text=(self.board[board_index].name + self.board[board_index].col)
+                    )
                 if x == 0:
                     self.board_canvas.create_text(  
                         x*box_size + box_size/7, 
                         y*box_size + box_size/7, 
                         text=str(8 - y), 
-                        font=ctk.CTkFont(size=abs(int(box_size//5)), 
-                        weight="bold")
+                        font=ctk.CTkFont(size=abs(int(box_size//5))),
+                        fill=box_colors[(x + y + 1)%2]
                     )
 
                 if y == 7:
                     self.board_canvas.create_text( 
                         x*box_size + (box_size - box_size/7), 
                         y*box_size + (box_size - box_size/7), 
-                        text=chr(65 + x), 
-                        font=ctk.CTkFont(size=abs(int(box_size//5)), 
-                        weight="bold")
+                        text=chr(97 + x), 
+                        font=ctk.CTkFont(size=abs(int(box_size//5))),
+                        fill=box_colors[(x + y + 1)%2]
                     )
-                
+                board_index += 1
 
     def updateGame(self):
-        self.board_canvas.delete("all")
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
-
         self.drawBoard(size)
         
