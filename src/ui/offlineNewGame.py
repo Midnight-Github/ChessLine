@@ -14,12 +14,10 @@ class OfflineNewGame(ctk.CTkFrame):
         self.side_bar.add("Game")
         self.side_bar.add("History")
         self.side_bar.grid(row=0, column=1, padx=(0, 10), pady=(0, 10), sticky="news")
+        self.side_bar.tab("Game").grid_columnconfigure(0, weight=1)
 
         self.quit_button = ctk.CTkButton(self.side_bar.tab("Game"), text="Quit", command=self.quitFrame)
-        self.quit_button.grid(row=0, column=0, padx=(10, 0))
-
-        self.refresh_button = ctk.CTkButton(self.side_bar.tab("Game"), text="Refresh", command=self.updateBoard)
-        self.refresh_button.grid(row=0, column=1, padx=10)
+        self.quit_button.grid(row=0, column=0, padx=(10, 0), sticky="nesw")
 
         self.board_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.board_frame.grid(row=0, column=0, sticky="nesw")

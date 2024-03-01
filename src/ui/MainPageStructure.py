@@ -15,6 +15,8 @@ class MainPageStructure(ctk.CTkFrame):
     def __createHeading(self, heading):
         head_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=2)
         head_frame.grid(row=0, column=0, sticky="nesw", pady=(10, 0), padx=10)
+        head_frame.grid_columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(head_frame, height=10, text=heading, font=ctk.CTkFont(size=20)).pack(pady=5)
+        head_label = ctk.CTkLabel(head_frame, height=10, text=heading, font=ctk.CTkFont(size=20))
+        head_label.grid(row=0, column=0, sticky="nesw", padx=10, pady=5)
         

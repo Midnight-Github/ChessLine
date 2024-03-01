@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from chess.BoardState import BoardState
 from math import floor
+from reader.Toml import configurator
 
 board = BoardState()
 
@@ -11,6 +12,7 @@ class Chess:
         self.name = (name[0] + " (White)", name[1] + " (Black)")
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
         self.board = board.getBoard()
+        self.configurator = configurator
 
         self.board_frame.grid_rowconfigure(1, weight=1)
         self.board_frame.grid_columnconfigure(0, weight=1)
@@ -31,6 +33,7 @@ class Chess:
 
         self.turn = True
         self.preview = False
+        self.select = None
 
     def formatTime(self, t):
         insert_0 = lambda t: t if len(t) == 2 else '0' + t
@@ -55,28 +58,37 @@ class Chess:
     def getBoardSize(self):
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, self.board_frame.winfo_width() - 20)
 
-    def convertCoordToPos(self, x, y):
+    def getPos(self, x, y):
         box_size = (self.getBoardSize())/8
         return floor((x + box_size)/box_size) - 1, floor((y + box_size)/box_size) - 1
 
+    def getIndex(self, x, y):
+        return (8*y + x)
+
     def boardPressEvent(self, e):
-        x, y = self.convertCoordToPos(e.x, e.y)
-        index = (8*y) + x
+        x, y = self.getPos(e.x, e.y)
+        index = self.getIndex(x, y)
+        self.select = index if self.board[index].name != 'E' else None
+
+        self.drawBoard()
 
     def drawBoard(self, face="white"):
         self.board_canvas.delete("all")
-        box_colors = ("white", "gray25") # add settings to change color at index 1
+
+        box_colors = ("white", self.configurator.config["board"]["color"])
         box_size = (self.getBoardSize())/8
         board_index = 0
         for y in range(8):
-            for x in range(8):
+            for x in range(8):                    
                 self.board_canvas.create_rectangle( 
                     x*box_size, 
                     y*box_size, 
                     x*box_size + box_size, 
                     y*box_size + box_size,
-                    fill=box_colors[(x + y)%2]
+                    fill=box_colors[(x + y)%2],
+                    width=1
                 )
+
                 if self.board[board_index].name != 'E':
                     self.board_canvas.create_text(
                         x*box_size + box_size//2, 
