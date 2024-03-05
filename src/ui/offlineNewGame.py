@@ -23,7 +23,7 @@ class OfflineNewGame(ctk.CTkFrame):
         self.board_frame.grid(row=0, column=0, sticky="nesw")
         self.board_frame.bind("<Configure>", lambda e: self.updateBoard())
 
-        self.chess = Chess(self.board_frame)
+        self.chess = Chess(self.board_frame, self.root.update_idletasks)
     
     def quitFrame(self):
         warning_popup = CTkMessagebox(title="Quit", message="Do you want to quit?",
@@ -35,7 +35,4 @@ class OfflineNewGame(ctk.CTkFrame):
             self.root.showFrame("Home")
 
     def updateBoard(self):
-        self.root.update()
         self.chess.updateGame()
-
-        

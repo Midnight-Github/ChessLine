@@ -2,8 +2,8 @@ from os import path
 import toml
 
 class Toml():
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, rel_path):
+        self.path = path.dirname(__file__) + rel_path
         self.pull()
 
     def pull(self):
@@ -15,4 +15,4 @@ class Toml():
             toml.dump(self.config, file)
 
 #configurator.config[<head>][<key>]
-configurator = Toml(path.join(path.dirname(__file__) + "\\..\\data\\config.toml"))
+configurator = Toml("\\..\\data\\config.toml")

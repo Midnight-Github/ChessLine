@@ -5,6 +5,8 @@ from copy import copy, deepcopy
 
 class BoardState:
     def __init__(self):
+        self.turn = True
+
         self.__board = [Piece('E', 'N')]*64
         self.__board[0] = Piece('R', 'B')
         self.__board[1] = Piece('N', 'B')
@@ -38,30 +40,13 @@ class BoardState:
     def restart(self):
         self.__init__()
 
-    def preview(self, pos, col):
-        if self.__board[pos].col == 'N': 
-            raise EmptyBox
-        if self.__board[pos].col != col: 
-            raise OpponentPreview
+    def preview(self, pos):
+        if self.__board[pos].col != ('W' if self.turn else 'B'): 
+            return []
 
-        self.__unPreview()
-        for i in VerifyMove(self.__board).getPossibleMoves(pos, self.__prev_end_pos):
-            if self.__board[i].col == 'N': 
-                self.__board[i] = Piece('H', 'N')
-        return True
-
-    def __unPreview(self):
-        for i in range(64):
-            if self.__board[i].name == 'H' and self.__board[i].col == 'N':
-                self.__board[i] = Piece('E', 'N')
-
-    def highlight(self):
-        for i in range(64):
-            if self.__board[i].col == 'N':
-                self.__board[i] = Piece('H', 'N')
+        return VerifyMove(self.__board).getPossibleMoves(pos, self.__prev_end_pos)
 
     def __move(self, start_pos, end_pos, move):
-        self.__unPreview()
         if self.__board[start_pos].moved: 
             self.__board[start_pos].moved_again = True
         else: 
@@ -113,8 +98,13 @@ class BoardState:
             self.__move(rook_start_pos, rook_end_pos, None)
         else:
             self.__move(start_pos, end_pos, move)
+
+    def __getCoords(self, index):
+        x = index%8
+        y = index//8
+        return chr(x + 97) + str(8 - y)
                 
-    def push(self, start_pos, end_pos, turn, move):
+    def push(self, start_pos, end_pos):
         board_backup = deepcopy(self.__board)
         move_history_backup = copy(self.__move_history)
         col = self.__board[start_pos].col
@@ -122,19 +112,19 @@ class BoardState:
 
         is_same_colour =  self.__board[end_pos].col == col
         is_empty_space = col == 'N'
-        is_correct_piece = (True if turn == (col == 'W') else False) if turn != None else (True)
+        is_correct_piece = (True if self.turn == (col == 'W') else False) if self.turn != None else (True)
         
         if is_empty_space: raise EmptyBox
         elif not is_correct_piece: raise OpponentsPiece
         elif is_same_colour: raise CaptureOwnPiece
 
-        self.commitMove(start_pos, end_pos, move)
+        self.commitMove(start_pos, end_pos, self.__getCoords(start_pos) + self.__getCoords(end_pos))
 
         check_move = VerifyMove(self.__board)
         if check_move.check(self.__getKingPos(col), col): # self check
             self.__board = board_backup
             self.__move_history = move_history_backup
-            raise Check() 
+            raise Check
 
         if check_move.check(self.__getKingPos(opp_col), opp_col):
             if self.__stalemate(opp_col):
@@ -144,6 +134,7 @@ class BoardState:
             raise Stalemate
 
         self.__prev_end_pos = end_pos
+        self.turn = not self.turn
 
     def __getKingPos(self, col):
         king_pos = None

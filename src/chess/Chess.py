@@ -3,16 +3,19 @@ import tkinter as tk
 from chess.BoardState import BoardState
 from math import floor
 from reader.Toml import configurator
-
-board = BoardState()
+from reader.Image import Image
+from PIL import ImageTk
 
 class Chess:
-    def __init__(self, board_frame, name=('', ''), timer=(600, 600)):
+    def __init__(self, board_frame, update_root, name=('', ''), timer=(600, 600)):
         self.board_frame = board_frame
+        self.update_root = update_root
         self.name = (name[0] + " (White)", name[1] + " (Black)")
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
-        self.board = board.getBoard()
         self.configurator = configurator
+        self.board_state = BoardState()
+        self.board = self.board_state.getBoard()
+        self.chess_image = Image("\\..\\data\\chess_pieces.png")
 
         self.board_frame.grid_rowconfigure(1, weight=1)
         self.board_frame.grid_columnconfigure(0, weight=1)
@@ -32,8 +35,31 @@ class Chess:
         self.setWhiteUi()
 
         self.turn = True
-        self.preview = False
-        self.select = None
+        self.select = False
+        self.preview_pos = list()
+
+    def updateChessPieceImage(self):
+        size = self.getBoardSize()
+        gen_white = self.chess_image.generate(0, 0, 333.34, 333.5, 333.34, 0, 6, size/2800)
+        gen_black = self.chess_image.generate(0, 333.5, 333.34, 333.5, 333.34, 0, 6, size/2800)
+
+        chess_piece_image = {
+            "WK": next(gen_white),
+            "WQ": next(gen_white),
+            "WB": next(gen_white),
+            "WN": next(gen_white),
+            "WR": next(gen_white),
+            "WP": next(gen_white),
+
+            "BK": next(gen_black),
+            "BQ": next(gen_black),
+            "BB": next(gen_black),
+            "BN": next(gen_black),
+            "BR": next(gen_black),
+            "BP": next(gen_black),
+        }
+
+        self.chess_piece_image = chess_piece_image
 
     def formatTime(self, t):
         insert_0 = lambda t: t if len(t) == 2 else '0' + t
@@ -56,7 +82,9 @@ class Chess:
         self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
     def getBoardSize(self):
-        return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, self.board_frame.winfo_width() - 20)
+        self.update_root()
+        return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, 
+                self.board_frame.winfo_width() - 20)
 
     def getPos(self, x, y):
         box_size = (self.getBoardSize())/8
@@ -65,15 +93,32 @@ class Chess:
     def getIndex(self, x, y):
         return (8*y + x)
 
+    def animate(self):
+        self.drawBoard()
+
     def boardPressEvent(self, e):
         x, y = self.getPos(e.x, e.y)
         index = self.getIndex(x, y)
-        self.select = index if self.board[index].name != 'E' else None
+        if self.select:
+            try:
+                self.board_state.push(self.select, index)
+                self.board = self.board_state.getBoard()
+            except Exception:
+                self.select = index if self.board[index].name != 'E' else False
+            else:
+                # self.animate()
+                self.select = False
+        else:
+            self.select = index if self.board[index].name != 'E' else False
+
+        if self.select:
+            self.preview_pos = self.board_state.preview(self.select)
+            # self.board = self.board_state.getBoard()
 
         self.drawBoard()
 
     def drawBoard(self, face="white"):
-        self.board_canvas.delete("all")
+        self.board_canvas.delete("all")           
 
         box_colors = ("white", self.configurator.config["board"]["color"])
         box_size = (self.getBoardSize())/8
@@ -89,27 +134,38 @@ class Chess:
                     width=1
                 )
 
-                if self.board[board_index].name != 'E':
-                    self.board_canvas.create_text(
-                        x*box_size + box_size//2, 
-                        y*box_size + box_size//2,
-                        text=(self.board[board_index].name + self.board[board_index].col)
+                if board_index in self.preview_pos:
+                    self.board_canvas.create_oval( # Fix it
+                        x*(box_size + box_size/10),
+                        y*(box_size + box_size/10),
+                        y*(box_size + box_size/10),
+                        x*(box_size + box_size/10)
                     )
+
+                if self.board[board_index].col != 'N':
+                    piece = self.board[board_index].col + self.board[board_index].name
+                    self.board_canvas.create_image(
+                        x*box_size,
+                        y*box_size,
+                        anchor="nw",
+                        image=self.chess_piece_image[piece]
+                    )
+
                 if x == 0:
                     self.board_canvas.create_text(  
-                        x*box_size + box_size/7, 
-                        y*box_size + box_size/7, 
+                        x*box_size + box_size/12, 
+                        y*box_size + box_size/8, 
                         text=str(8 - y), 
-                        font=ctk.CTkFont(size=abs(int(box_size//5))),
+                        font=ctk.CTkFont(size=abs(int(box_size//6))),
                         fill=box_colors[(x + y + 1)%2]
                     )
 
                 if y == 7:
                     self.board_canvas.create_text( 
-                        x*box_size + (box_size - box_size/7), 
-                        y*box_size + (box_size - box_size/7), 
+                        x*box_size + (box_size - box_size/14), 
+                        y*box_size + (box_size - box_size/9), 
                         text=chr(97 + x), 
-                        font=ctk.CTkFont(size=abs(int(box_size//5))),
+                        font=ctk.CTkFont(size=abs(int(box_size//6))),
                         fill=box_colors[(x + y + 1)%2]
                     )
                 board_index += 1
@@ -117,5 +173,6 @@ class Chess:
     def updateGame(self):
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
-        self.drawBoard(size)
+        self.updateChessPieceImage()
+        self.drawBoard()
         
