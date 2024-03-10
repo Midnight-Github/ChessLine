@@ -1,7 +1,8 @@
+from typing import Callable
 import customtkinter as ctk
 
 class Menu(ctk.CTkFrame):
-    def __init__(self, root):
+    def __init__(self, root) -> None:
         super().__init__(root, corner_radius=0)
 
         self.grid_rowconfigure(3, weight=1)
@@ -11,14 +12,16 @@ class Menu(ctk.CTkFrame):
 
         self.home_button = self.makeButton(text="Home", row=1, command=lambda: root.showFrame("Home"))
         self.settings_button = self.makeButton(text="Setting", row=2, command=lambda: root.showFrame("Setting"))
-        self.profile_button = self.makeButton(text="Profile", row=4, pady=(0, 15), command=lambda: root.showFrame("Profile"))
+        self.profile_button = self.makeButton(text="Profile", row=4, pady=(0, 15), 
+            command=lambda: root.showFrame("Profile")
+        )
 
-    def makeButton(self, text, row, command=None, pady=(10, 10)):
+    def makeButton(self, text: str, row: int, command: Callable | None=None, pady: tuple[float, float]=(10, 10)) -> ctk.CTkButton:
         button = ctk.CTkButton(self, text=text, width=80, command=command)
         button.grid(row=row, column=0, pady=pady, padx=10, ipadx=10)
         return button
 
-    def focusButton(self, button):
+    def focusButton(self, button: str) -> None:
         self.home_button.configure(state='normal')
         self.settings_button.configure(state='normal')
         self.profile_button.configure(state='normal')

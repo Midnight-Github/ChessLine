@@ -4,7 +4,7 @@ from chess.Piece import Piece
 from copy import copy, deepcopy
 
 class BoardState:
-    def __init__(self):
+    def __init__(self) -> None:
         self.turn = True
 
         self.__board = [Piece('E', 'N')]*64
@@ -37,16 +37,16 @@ class BoardState:
         self.__move_history = ''
         self.__prev_end_pos = None
             
-    def restart(self):
+    def restart(self) -> None:
         self.__init__()
 
-    def preview(self, pos):
+    def preview(self, pos: int) -> list:
         if self.__board[pos].col != ('W' if self.turn else 'B'): 
             return []
 
         return VerifyMove(self.__board).getPossibleMoves(pos, self.__prev_end_pos)
 
-    def __move(self, start_pos, end_pos, move):
+    def __move(self, start_pos: int, end_pos: int, move: str | None) -> None:
         if self.__board[start_pos].moved: 
             self.__board[start_pos].moved_again = True
         else: 
@@ -58,11 +58,12 @@ class BoardState:
         if move != None: 
             self.__move_history += move+' '
 
-    def commitMove(self, start_pos, end_pos, move):
+    def commitMove(self, start_pos: int, end_pos: int, move: str | None) -> None:
         checkmove = VerifyMove(self.__board)
         col = self.__board[start_pos].col
 
-        move_type = checkmove.validate(start_pos, end_pos, self.__prev_end_pos)
+        move_type = checkmove.validate(start_pos, end_pos, self.__prev_end_pos)          
+
         if move_type == "promotion":
             promo = input("Promote to: ").upper()
             if promo not in "QBNR": 
@@ -70,7 +71,7 @@ class BoardState:
 
             self.__move(start_pos, end_pos, move)
             self.__board[end_pos].name = promo
-            self.__board[end_pos].val = 9 if promo == 'Q' else 5 if promo == 'R' else 3.3 if promo == 'B' else 3.2
+            # self.__board[end_pos].val = 9 if promo == 'Q' else 5 if promo == 'R' else 3.3 if promo == 'B' else 3.2
 
         elif move_type == "enpassant":
             killpos = end_pos + (8 if col == 'W' else -8)
@@ -99,12 +100,12 @@ class BoardState:
         else:
             self.__move(start_pos, end_pos, move)
 
-    def __getCoords(self, index):
+    def __getCoords(self, index: int) -> str:
         x = index%8
         y = index//8
         return chr(x + 97) + str(8 - y)
                 
-    def push(self, start_pos, end_pos):
+    def push(self, start_pos: int, end_pos: int) -> None:
         board_backup = deepcopy(self.__board)
         move_history_backup = copy(self.__move_history)
         col = self.__board[start_pos].col
@@ -136,16 +137,14 @@ class BoardState:
         self.__prev_end_pos = end_pos
         self.turn = not self.turn
 
-    def __getKingPos(self, col):
-        king_pos = None
+    def __getKingPos(self, col: str) -> int:
         for i in range(64):
             if self.__board[i].name == 'K':
                 if self.__board[i].col == (col):
-                    king_pos = i
-                    break
-        return king_pos
+                    return i
+        raise KingNotFound
 
-    def __stalemate(self, col):
+    def __stalemate(self, col: str) -> bool:
         king_pos = self.__getKingPos(col)
         original_board = deepcopy(self.__board)
         vm = VerifyMove(original_board)
@@ -163,21 +162,21 @@ class BoardState:
                 self.__board = deepcopy(original_board)
         return True
                     
-    def getMoveHistory(self):
+    def getMoveHistory(self) -> str:
         return self.__move_history
 
-    def loadGame(self, move_history):
+    def loadGame(self, move_history: str) -> None:
         self.__move_history = move_history
 
-    def getBoard(self):
+    def getBoard(self) -> list:
         return self.__board
 
-    def setBoard(self, board):
+    def setBoard(self, board: list) -> None:
         for i in range(64):
             self.__board[i] = Piece(*board[i])
 
-    def getPrevEndPos(self):
+    def getPrevEndPos(self) -> int | None:
         return self.__prev_end_pos
 
-    def setPrevEndPos(self, prev_end_pos):
+    def setPrevEndPos(self, prev_end_pos: int | None) -> None:
         self.__prev_end_pos = prev_end_pos

@@ -1,9 +1,10 @@
 import tkinter as tk
+from typing import Callable
 import customtkinter as ctk
 from ui.MainPageStructure import MainPageStructure
 
 class Home(MainPageStructure):
-    def __init__(self, root):
+    def __init__(self, root) -> None:
         super().__init__(root, heading="Home")
         self.root = root
 
@@ -23,15 +24,15 @@ class Home(MainPageStructure):
         self.connectionBar()
         self.offlineGame()
 
-    def friends(self):
+    def friends(self) -> None:
         self.friends_frame = ctk.CTkFrame(self.side_bar.tab("Friends"), fg_color="black")
         self.friends_frame.pack(fill="both", expand=True)
 
-    def rankedMatch(self):
+    def rankedMatch(self) -> None:
         self.match_frame = ctk.CTkFrame(self.side_bar.tab("Match"), fg_color="orange")
         self.match_frame.pack(fill="both", expand=True)
 
-    def connectionBar(self):
+    def connectionBar(self) -> None:
         self.connection_frame = ctk.CTkFrame(self.frame, fg_color="transparent", border_width=2)
         self.connection_frame.grid(row=0, column=0, padx=(0, 10), pady=20, sticky="nesw")
 
@@ -43,12 +44,12 @@ class Home(MainPageStructure):
         self.server_name_label = ctk.CTkLabel(self.connection_frame, textvariable=self.server_name)
         self.server_name_label.grid(row=0, column=2, padx=10, pady=(8, 2), sticky="nesw")
 
-    def offlineGame(self):
-        def makeOfflineButton(text, row, command=None):
+    def offlineGame(self) -> None:
+        def makeOfflineButton(text: str, row: int, command: Callable | None=None) -> None:
             b = ctk.CTkButton(self.offline_button_frame, corner_radius=20, text=text, font=ctk.CTkFont(size=15), width=200, command=command)
             b.grid(row=row, column=0, pady=(0, 10))
 
-        def launch(frame):
+        def launch(frame: str) -> None:
             self.root.setActivePage("Home", frame)
             self.root.initFrame(frame)
             self.root.showFrame("Home")  
@@ -63,5 +64,5 @@ class Home(MainPageStructure):
         makeOfflineButton(text="Open Game", row=1, command=lambda : launch("OfflineOpenGame"))
         makeOfflineButton(text="Create Game", row=2, command=lambda : launch("OfflineCreateGame"))
 
-    def updatePage(self):
+    def updatePage(self) -> None:
         pass

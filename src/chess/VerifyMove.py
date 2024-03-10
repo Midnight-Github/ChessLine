@@ -1,10 +1,10 @@
 from chess.Errors import *
 
 class VerifyMove:
-    def __init__(self, board) -> None:
+    def __init__(self, board: list) -> None:
         self.board = board
 
-    def __pawn(self, pos, col):
+    def __pawn(self, pos: int, col: str) -> list:
         moves = list()
         if col == 'W':
             if 0 <= pos - 8 <= 63:
@@ -42,7 +42,7 @@ class VerifyMove:
 
         return moves
         
-    def __rook(self, pos, col):
+    def __rook(self, pos: int, col: str) -> list:
         moves = list()
         xBounds = lambda x: (0 <= x <= 63) and (pos//8 != x//8)
         yBounds = lambda x: (0 <= x <= 63) and (pos//8 == x//8)
@@ -73,7 +73,7 @@ class VerifyMove:
             
         return moves
 
-    def __knight(self, pos, col):
+    def __knight(self, pos: int, col: str) -> list:
         moves = list()
         s = lambda x: abs(pos//8 - x//8) <= 2 and abs(pos%8 - x%8) <= 2
 
@@ -94,7 +94,7 @@ class VerifyMove:
 
         return moves
 
-    def __bishop(self, pos, col):
+    def __bishop(self, pos: int, col: str) -> list:
         moves = list()
         bounds = lambda x: (0 <= x <= 63) and abs(pos//8 - x//8) == abs(pos%8 - x%8)
 
@@ -124,10 +124,10 @@ class VerifyMove:
 
         return moves
 
-    def __queen(self, pos, col):
+    def __queen(self, pos: int, col: str) -> list:
         return (self.__rook(pos, col) + self.__bishop(pos, col))
 
-    def __king(self, pos, col):
+    def __king(self, pos: int, col: str) -> list:
         moves = list()
         check = lambda x: (0 <= x <= 63) and (abs(pos//8 - x//8) <= 1 and abs(pos%8 - x%8) <= 1)
         possible_pos = [
@@ -146,14 +146,14 @@ class VerifyMove:
         
         return moves
 
-    def __promotion(self):
+    def __promotion(self) -> bool:
         if self.end_pos not in self.__pawn(self.start_pos, self.col): 
             return False
 
         offset = 0 if self.board[self.start_pos].col == 'W' else 56
         return offset + 0 <= self.end_pos <= offset + 7
 
-    def __castling(self, pos, col):
+    def __castling(self, pos: int, col: str) -> list:
         #(rook, end_pos, start_pos/king_pos, col)
         possible_pos = [(0, 2, 4, 'B'), (7, 6, 4, 'B'), (56, 58, 60, 'W'), (63, 62, 60, 'W')]
         moves = list()
@@ -175,7 +175,7 @@ class VerifyMove:
                 moves.append(end_pos)
         return moves
 
-    def __enpassant(self, pos, col, prev_pos):
+    def __enpassant(self, pos: int, col: str, prev_end_pos: int) -> list:
         if not(24 <= pos <= 31 or 32 <= pos <= 39):
             return []
 
@@ -189,7 +189,7 @@ class VerifyMove:
                 if self.board[kill_pos].col == 'N':
                     continue
 
-                if self.board[kill_pos].moved_again or prev_pos != kill_pos:
+                if self.board[kill_pos].moved_again or prev_end_pos != kill_pos:
                     continue
 
                 return [i]
@@ -204,26 +204,26 @@ class VerifyMove:
                 if self.board[kill_pos].col == 'N':
                     continue
 
-                if self.board[kill_pos].moved_again or prev_pos != kill_pos:
+                if self.board[kill_pos].moved_again or prev_end_pos != kill_pos:
                     continue
 
                 return [i]
         return []
 
-    def check(self, pos, col):
-        for i in self.__knight(pos, None):
+    def check(self, pos: int, col: str) -> bool:
+        for i in self.__knight(pos, ''):
             if self.board[i].name == 'N' and self.board[i].col != col:
                 return True
 
-        for i in self.__rook(pos, None):
+        for i in self.__rook(pos, ''):
             if self.board[i].name in 'QR' and self.board[i].col != col:
                 return True
 
-        for i in self.__bishop(pos, None):
+        for i in self.__bishop(pos, ''):
             if self.board[i].name in 'QB' and self.board[i].col != col:
                 return True
 
-        for i in self.__king(pos, None):
+        for i in self.__king(pos, ''):
             if self.board[i].name in 'K' and self.board[i].col != col:
                 return True
 
@@ -241,7 +241,7 @@ class VerifyMove:
         
         return False
 
-    def __primaryValidation(self):
+    def __primaryValidation(self) -> bool:
         if self.name == 'P':
             if self.end_pos not in self.__pawn(self.start_pos, self.col): 
                 raise InvalidMove("pawn")
@@ -266,14 +266,14 @@ class VerifyMove:
             if self.end_pos not in self.__king(self.start_pos, self.col): 
                 raise InvalidMove("king")
 
-        else: raise Exception
+        else: 
+            raise Exception
 
         return True
                 
-    def validate(self, start_pos, end_pos, prev_pos):
+    def validate(self, start_pos: int, end_pos: int, prev_end_pos: int | None=None) -> bool | str:
         self.start_pos = start_pos
         self.end_pos = end_pos
-        self.prev_pos = prev_pos
         self.col = self.board[start_pos].col
         self.name = self.board[start_pos].name
         
@@ -283,8 +283,9 @@ class VerifyMove:
         if self.name == 'P':
             if self.__promotion(): 
                 complex_move = "promotion"
-            elif end_pos in self.__enpassant(start_pos, self.col, prev_pos): 
+            elif isinstance(prev_end_pos, int) and end_pos in self.__enpassant(start_pos, self.col, prev_end_pos): 
                 complex_move = "enpassant"
+
         elif self.name == 'K' and abs(dx) == 2:
             if end_pos in self.__castling(start_pos, self.col): 
                 complex_move = "castling"
@@ -294,13 +295,16 @@ class VerifyMove:
 
         return self.__primaryValidation()
     
-    def getPossibleMoves(self, pos, prev_pos): 
+    def getPossibleMoves(self, pos: int, prev_end_pos: int | None=None) -> list: 
         name = self.board[pos].name
         col = self.board[pos].col
 
         match(name):
             case 'P':
-                return self.__pawn(pos, col) + self.__enpassant(pos, col, prev_pos)
+                if isinstance(prev_end_pos, int):
+                    return self.__pawn(pos, col) + self.__enpassant(pos, col, prev_end_pos)
+                else:
+                    return self.__pawn(pos, col)
             case 'R': 
                 return self.__rook(pos, col)
             case 'N': 

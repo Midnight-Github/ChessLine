@@ -1,5 +1,5 @@
 class Piece:
-    def __init__(self, name, col, moved=False, moved_again=False):
+    def __init__(self, name: str, col: str, moved: bool=False, moved_again: bool=False) -> None:
         self.name = name
         self.col = col
         self.moved = moved

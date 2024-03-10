@@ -3,7 +3,7 @@ from CTkMessagebox import CTkMessagebox
 from chess.Chess import Chess
 
 class OfflineNewGame(ctk.CTkFrame):
-    def __init__(self, root):
+    def __init__(self, root) -> None:
         super().__init__(root, fg_color="transparent")
         self.root = root
 
@@ -25,7 +25,7 @@ class OfflineNewGame(ctk.CTkFrame):
 
         self.chess = Chess(self.board_frame, self.root.update_idletasks)
     
-    def quitFrame(self):
+    def quitFrame(self) -> None:
         warning_popup = CTkMessagebox(title="Quit", message="Do you want to quit?",
                         icon="question", option_1="No", option_2="Yes")
 
@@ -34,5 +34,5 @@ class OfflineNewGame(ctk.CTkFrame):
             self.root.deleteFrame("OfflineNewGame")
             self.root.showFrame("Home")
 
-    def updateBoard(self):
+    def updateBoard(self) -> None:
         self.chess.updateGame()

@@ -22,14 +22,17 @@ class InvalidPromotionInput(Exception):
 class Stalemate(Exception):
     pass
 
+class KingNotFound(Exception):
+    pass
+
 class TimeOut(Exception):
-    def __init__(self, col):
+    def __init__(self, col: str) -> None:
         super().__init__(col)
 
 class InvalidMove(Exception): 
-    def __init__(self, piece):
+    def __init__(self, piece: str) -> None:
         super().__init__(piece)
 
 class Checkmate(Exception):
-    def __init__(self, col):
+    def __init__(self, col: str) -> None:
         super().__init__(col)

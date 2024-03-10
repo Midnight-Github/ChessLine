@@ -1,3 +1,4 @@
+from typing import Callable
 import customtkinter as ctk
 from ui.Menu import Menu
 from ui.Setting import Setting
@@ -9,7 +10,7 @@ from ui.OfflineCreateGame import OfflineCreateGame
 from reader.Toml import configurator
 
 class Manager(ctk.CTk):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.commitConfigurator()
@@ -47,39 +48,40 @@ class Manager(ctk.CTk):
 
         self.showFrame("Home")
 
-    def commitConfigurator(self):
+    def commitConfigurator(self) -> None:
         ctk.set_appearance_mode(configurator.config["appearance"]["system_theme"])
         ctk.set_default_color_theme(configurator.config["appearance"]["color_theme"])
 
-    def frameToStr(self, frame):
+    def frameToStr(self, frame: Callable) -> str:
         return str(frame).split('.')[-1][:-2]
 
-    def strToFrame(self, string):
+    def strToFrame(self, frame: str) -> Callable:
         for i in self.pages:
-            if string == self.frameToStr(i):
+            if frame == self.frameToStr(i):
                 return i
-        raise ValueError(string, "does not match with any frame objects")
+        raise ValueError(frame, "does not match with any frame objects")
 
-    def getMainPage(self, frame):
+    def getMainPage(self, frame: str) -> str:
         if self.strToFrame(frame) in self.main_pages:
             return frame
         if self.strToFrame(frame) in self.home:
             return "Home"
+        raise ValueError(frame, "does not match with any frame objects")
 
-    def setActivePage(self, main_frame, sub_frame):
+    def setActivePage(self, main_frame: str, sub_frame: str) -> None:
         self.active_pages[main_frame] = sub_frame
 
-    def showFrame(self, frame, forced=False):
+    def showFrame(self, frame: str, forced: bool=False) -> None:
         self.menu.focusButton(self.getMainPage(frame))
         if forced:
             self.frames[frame].tkraise()
-            return
+            return 
         self.frames[self.active_pages[frame]].tkraise()
 
-    def deleteFrame(self, frame):
+    def deleteFrame(self, frame: str) -> None:
         self.frames[frame].destroy()
 
-    def initFrame(self, frame):
+    def initFrame(self, frame: str) -> None:
         new_frame = self.strToFrame(frame)(self)
         self.frames[frame] = new_frame
         new_frame.grid(row=0, column=1, sticky="nsew")
