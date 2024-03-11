@@ -123,7 +123,8 @@ class Chess:
 
         if self.select:
             self.preview_pos = self.board_state.preview(self.select)
-            preview_drawable = True
+            if self.preview_pos:
+                preview_drawable = True
 
         self.clearCanvas('preview')
         
@@ -131,11 +132,12 @@ class Chess:
         if piece_drawable:
             self.clearCanvas('piece')
             fxns.append(self.drawPieces)
-            
+
         if preview_drawable:
             fxns.append(self.drawPreview)
 
-        self.draw(*fxns)
+        if fxns:
+            self.draw(*fxns)
 
     def draw(self, *fxns: Callable) -> None:
         box_colors = ("white", self.configurator.config["board"]["color"])
