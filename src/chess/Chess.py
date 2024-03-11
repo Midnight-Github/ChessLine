@@ -43,8 +43,8 @@ class Chess:
     def updateChessPieceImage(self) -> None:
         size = self.getBoardSize()
 
-        gen_white = self.chess_image.generate(0, 0, 333, 333, 333, 0, 6, size/2800)
-        gen_black = self.chess_image.generate(0, 333, 333, 333, 333, 0, 6, size/2800)
+        gen_white = self.chess_image.generate(0, 0, 333, 333, 333, 0, 6, size/3100)
+        gen_black = self.chess_image.generate(0, 333, 333, 333, 333, 0, 6, size/3100)
 
         chess_piece_image = {
             "WK": next(gen_white),
@@ -87,7 +87,7 @@ class Chess:
     def getBoardSize(self) -> float:
         self.update_root()
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, 
-                self.board_frame.winfo_width() - 20)
+            self.board_frame.winfo_width() - 20)
 
     def getPos(self, x: float, y: float) -> tuple[int, int]:
         box_size = (self.getBoardSize())/8
@@ -121,6 +121,30 @@ class Chess:
         self.drawBoard()
 
     def drawBoard(self, face: str="white") -> None:# to do - draw board only when window is resized
+        def highLightPiecePos() -> None:
+            if not(self.select and board_index in self.preview_pos):
+                return
+            
+            if self.board[board_index].col == 'N':
+                r = box_size/9
+                self.board_canvas.create_oval(
+                    x*(box_size) + box_size/2 - r,
+                    y*(box_size) + box_size/2 - r,
+                    x*(box_size) + box_size/2 + r,
+                    y*(box_size) + box_size/2 + r,
+                    fill="#363636"
+                )
+            elif self.board[board_index].col == 'B' if self.board_state.turn else 'W':
+                r = box_size/2.2
+                self.board_canvas.create_oval(
+                    x*(box_size) + box_size/2 - r,
+                    y*(box_size) + box_size/2 - r,
+                    x*(box_size) + box_size/2 + r,
+                    y*(box_size) + box_size/2 + r,
+                    width=4,
+                    outline="#363636"
+                )
+
         self.board_canvas.delete("all")           
 
         box_colors = ("white", self.configurator.config["board"]["color"])
@@ -137,22 +161,16 @@ class Chess:
                     width=1
                 )
 
-                if board_index in self.preview_pos:
-                    self.board_canvas.create_oval( # Fix it
-                        x*(box_size + box_size/10),
-                        y*(box_size + box_size/10),
-                        y*(box_size + box_size/10),
-                        x*(box_size + box_size/10)
-                    )
-
                 if self.board[board_index].col != 'N':
                     piece = self.board[board_index].col + self.board[board_index].name
                     self.board_canvas.create_image(
-                        x*box_size,
-                        y*box_size,
+                        x*box_size + box_size/14,
+                        y*box_size + box_size/14,
                         anchor="nw",
                         image=self.chess_piece_image[piece]
                     )
+                
+                highLightPiecePos()
 
                 if x == 0:
                     self.board_canvas.create_text(  
