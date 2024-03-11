@@ -100,7 +100,7 @@ class BoardState:
         else:
             self.__move(start_pos, end_pos, move)
 
-    def __getCoords(self, index: int) -> str:
+    def __getChessCoords(self, index: int) -> str:
         x = index%8
         y = index//8
         return chr(x + 97) + str(8 - y)
@@ -119,7 +119,7 @@ class BoardState:
         elif not is_correct_piece: raise OpponentsPiece
         elif is_same_colour: raise CaptureOwnPiece
 
-        self.commitMove(start_pos, end_pos, self.__getCoords(start_pos) + self.__getCoords(end_pos))
+        self.commitMove(start_pos, end_pos, self.__getChessCoords(start_pos) + self.__getChessCoords(end_pos))
 
         check_move = VerifyMove(self.__board)
         if check_move.check(self.__getKingPos(col), col): # self check
