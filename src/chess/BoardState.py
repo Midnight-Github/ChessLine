@@ -169,7 +169,7 @@ class BoardState:
         self.__move_history = move_history
 
     def getBoard(self) -> list:
-        return self.__board
+        return deepcopy(self.__board)
 
     def setBoard(self, board: list) -> None:
         for i in range(64):

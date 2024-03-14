@@ -5,20 +5,24 @@ from chess.BoardState import BoardState
 from math import floor
 from reader.Toml import configurator
 from reader.Image import Image
+import time
 
 class Chess:
     def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
-        timer: tuple[int, int]=(600, 600)) -> None:
+        timer: tuple[int, int]=(600, 600), animation_speed: int=1) -> None:
 
         self.board_frame = board_frame
         self.update_root = update_root
         self.face = face
         self.name = (name[0] + " (White)", name[1] + " (Black)")
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
+        self.animation_speed = animation_speed
+        
         self.configurator = configurator
         self.board_state = BoardState()
         self.board = self.board_state.getBoard()
-        self.chess_image = Image("\\..\\data\\chess_pieces.png")
+        self.chess_image = Image(r"\..\data\chess_pieces.png")
+        self.canvas_piece = dict.fromkeys(range(0, 64))
 
         self.board_frame.grid_rowconfigure(1, weight=1)
         self.board_frame.grid_columnconfigure(0, weight=1)
@@ -97,7 +101,14 @@ class Chess:
         return (8*y + x)
 
     def animate(self, initial: int, final: int) -> None:
-        pass
+        if initial == final:
+            return
+        # self.board_canvas.move(self.canvas_piece[0], 60, 0)
+        # print(initial, final)
+        # print(type(self.canvas_piece[0]))
+        # time.sleep(5)
+        # self.board_canvas.move(initial - 60, final)
+        # self.board_canvas.after(50, self.animate(initial - self.animation_speed, final))
     
     def getTurn(self) -> str:
         return 'W' if self.board_state.turn else 'B'
@@ -107,7 +118,8 @@ class Chess:
         index = self.getIndex(x, y)
         piece_drawable = False
         preview_drawable = False
-        if self.select:
+
+        if self.select is not False:
             turn = self.getTurn()                
             try:
                 self.board_state.push(self.select, index)
@@ -121,7 +133,7 @@ class Chess:
         else:
             self.select = index if self.board[index].name != 'E' else False
 
-        if self.select:
+        if self.select is not False:
             self.preview_pos = self.board_state.preview(self.select)
             if self.preview_pos:
                 preview_drawable = True
@@ -130,7 +142,6 @@ class Chess:
         
         fxns = list()
         if piece_drawable:
-            self.clearCanvas('piece')
             fxns.append(self.drawPieces)
 
         if preview_drawable:
@@ -194,15 +205,21 @@ class Chess:
         box_size = kwargs["box_size"]
         board_index = kwargs["board_index"]
 
-        if self.board[board_index].col != 'N':
-            piece = self.board[board_index].col + self.board[board_index].name
+        if self.board[board_index].col == 'N':
+            self.board_canvas.delete("#" + str(board_index))
+            return
+        
+        piece_info = self.board[board_index].col + self.board[board_index].name
+        if self.canvas_piece[board_index] != piece_info:
+            self.board_canvas.delete("#" + str(board_index))
             self.board_canvas.create_image(
                 x*box_size + box_size/14,
                 y*box_size + box_size/14,
                 anchor="nw",
-                image=self.chess_piece_image[piece],
-                tags="piece"
+                image=self.chess_piece_image[piece_info],
+                tags=("#" + str(board_index), "piece")
             )
+            self.canvas_piece[board_index] = piece_info
 
     def drawPreview(self, **kwargs) -> None:
         x = kwargs['x']
@@ -210,7 +227,7 @@ class Chess:
         box_size = kwargs["box_size"]
         board_index = kwargs["board_index"]
 
-        if not(self.select and board_index in self.preview_pos):
+        if self.select is False or board_index not in self.preview_pos:
             return
             
         if self.board[board_index].col == 'N':
@@ -236,8 +253,10 @@ class Chess:
             )
 
     def updateGame(self) -> None:
+        self.canvas_piece = dict.fromkeys(range(0, 64))
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
         self.updateChessPieceImage()
+        self.clearCanvas()
         self.draw(self.drawBoard, self.drawPreview, self.drawPieces)
         
