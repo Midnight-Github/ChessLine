@@ -266,6 +266,10 @@ class VerifyMove:
             if self.end_pos not in self.__king(self.start_pos, self.col): 
                 raise InvalidMove("king")
 
+        elif self.name == 'Z':
+            if self.end_pos not in self.__king(self.start_pos, self.col) + self.__knight(self.start_pos, self.col): 
+                raise InvalidMove("Z")
+
         else: 
             raise Exception
 
@@ -315,5 +319,7 @@ class VerifyMove:
                 return self.__queen(pos, col)
             case 'K': 
                 return self.__king(pos, col) + self.__castling(pos, col)
+            case 'Z': 
+                return self.__queen(pos, col) + self.__knight(pos, col)
             case _:
                 raise ValueError("Unsupported piece found:", name)

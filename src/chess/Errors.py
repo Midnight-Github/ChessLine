@@ -13,9 +13,6 @@ class CaptureOwnPiece(Exception):
 class Check(Exception):
     pass
 
-class UnNamedFile(Exception):
-    pass
-
 class InvalidPromotionInput(Exception):
     pass
 

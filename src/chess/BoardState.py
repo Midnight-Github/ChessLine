@@ -58,16 +58,19 @@ class BoardState:
         if move != None: 
             self.__move_history += move+' '
 
-    def commitMove(self, start_pos: int, end_pos: int, move: str | None) -> None:
+    def commitMove(self, start_pos: int, end_pos: int, move: str | None, pseudo: bool=False) -> None:
         checkmove = VerifyMove(self.__board)
         col = self.__board[start_pos].col
 
         move_type = checkmove.validate(start_pos, end_pos, self.__prev_end_pos)          
 
         if move_type == "promotion":
-            promo = input("Promote to: ").upper()
-            if promo not in "QBNR": 
-                raise InvalidPromotionInput
+            if pseudo:
+                promo = 'Z'
+            else:
+                promo = input("Promote to: ").upper()
+                if promo not in "QBNR": 
+                    raise InvalidPromotionInput
 
             self.__move(start_pos, end_pos, move)
             self.__board[end_pos].name = promo
@@ -155,7 +158,7 @@ class BoardState:
             if self.__board[i].name == 'K':
                 move_king = True
             for pos in vm.getPossibleMoves(i, self.__prev_end_pos):
-                self.commitMove(i, pos, None)
+                self.commitMove(i, pos, None, pseudo=True)
                 if not VerifyMove(self.__board).check(pos if move_king else king_pos, col):
                     self.__board = deepcopy(original_board)
                     return False

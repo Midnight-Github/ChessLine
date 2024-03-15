@@ -21,7 +21,7 @@ class Chess:
         self.configurator = configurator
         self.board_state = BoardState()
         self.board = self.board_state.getBoard()
-        self.chess_image = Image(r"\..\data\chess_pieces.png")
+        self.chess_image = Image("\\..\\data\\chess_pieces.png")
         self.canvas_piece = dict.fromkeys(range(0, 64))
 
         self.board_frame.grid_rowconfigure(1, weight=1)
@@ -119,11 +119,12 @@ class Chess:
         piece_drawable = False
         preview_drawable = False
 
-        if self.select is not False:
+        if self.select is not False and self.board[index].col != self.getTurn():
             turn = self.getTurn()                
             try:
                 self.board_state.push(self.select, index)
-            except Exception:
+            except Exception as e:
+                print(e)
                 self.select = index if self.board[index].name not in ('E', turn) else False
             else:
                 self.animate(self.select, index)
