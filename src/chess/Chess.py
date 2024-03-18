@@ -46,8 +46,8 @@ class Chess:
     def updateChessPieceImage(self) -> None:
         size = self.getBoardSize()
 
-        gen_white = self.chess_image.generate(0, 0, 333, 333, 333, 0, 6, size/3100)
-        gen_black = self.chess_image.generate(0, 333, 333, 333, 333, 0, 6, size/3100)
+        gen_white = self.chess_image.generatePhotoImage(0, 0, 333, 333, 333, 0, 6, size/3100)
+        gen_black = self.chess_image.generatePhotoImage(0, 333, 333, 333, 333, 0, 6, size/3100)
 
         chess_piece_image = {
             "WK": next(gen_white),

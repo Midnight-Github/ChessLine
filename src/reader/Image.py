@@ -31,8 +31,8 @@ class Image():
             x += inc_x
             y += inc_y
 
-    def generatePhotoImage(self, x: int, y: int, height: int, width: int, inc_x: int, inc_y: int, no_of_images: int, 
-        scale_factor: float) -> Iterator[PilImageTk.PhotoImage]:
+    def generatePhotoImage(self, x: int, y: int, height: int, width: int, inc_x: int, inc_y: int, 
+        no_of_images: int, scale_factor: float) -> Iterator[PilImageTk.PhotoImage]:
         
         for _ in range(no_of_images):
             img = self.pullCroppedImage(x, y, x + width, y + height)
