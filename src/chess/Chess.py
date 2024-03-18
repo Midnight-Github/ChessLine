@@ -247,7 +247,7 @@ class Chess:
                 y*(box_size) + box_size/2 - r,
                 x*(box_size) + box_size/2 + r,
                 y*(box_size) + box_size/2 + r,
-                width=4,
+                width=box_size/20,
                 outline="#363636",
                 tags="preview"
             )
