@@ -5,7 +5,6 @@ from chess.BoardState import BoardState
 from math import floor
 from reader.Toml import configurator
 from reader.Image import Image
-import time
 
 class Chess:
     def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
