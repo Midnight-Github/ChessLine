@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from utils import CtkAddon as ctka
 from ui.MainPageStructure import MainPageStructure
-from reader.Toml import configurator
+from var.Globals import configurator
 from CTkMessagebox import CTkMessagebox
 
 class Setting(MainPageStructure):

@@ -13,6 +13,3 @@ class Toml():
     def push(self) -> None:
         with open(self.path, 'w') as file:
             toml.dump(self.config, file)
-
-#configurator.config[<head>][<key>]
-configurator = Toml("\\..\\data\\config.toml")

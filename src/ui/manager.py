@@ -7,7 +7,7 @@ from ui.Profile import Profile
 from ui.OfflineNewGame import OfflineNewGame
 from ui.OfflineOpenGame import OfflineOpenGame
 from ui.OfflineCreateGame import OfflineCreateGame
-from reader.Toml import configurator
+from var.Globals import configurator
 
 class Manager(ctk.CTk):
     def __init__(self) -> None:

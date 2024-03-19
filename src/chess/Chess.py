@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 from chess.BoardState import BoardState
 from math import floor
-from reader.Toml import configurator
+from var.Globals import configurator
 from reader.Image import Image
 
 class Chess:
