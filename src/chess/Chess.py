@@ -88,7 +88,6 @@ class Chess:
         self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
     def getBoardSize(self) -> float:
-        self.update_root()
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, 
             self.board_frame.winfo_width() - 20)
 
@@ -253,6 +252,7 @@ class Chess:
             )
 
     def updateGame(self) -> None:
+        self.update_root()
         self.canvas_piece = dict.fromkeys(range(0, 64))
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
