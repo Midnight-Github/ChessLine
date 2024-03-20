@@ -1,9 +1,0 @@
-pip install:
-  customtkinter
-  CTkMessagebox
-  toml
-
-python version -> 3.12.1
-
-Execute program:
-  execute main.py inside src to run the program
