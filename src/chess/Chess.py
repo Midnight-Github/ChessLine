@@ -5,6 +5,7 @@ from chess.BoardState import BoardState
 from math import floor
 from var.Globals import configurator
 from reader.Image import Image
+from chess.Errors import *
 
 class Chess:
     def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
@@ -17,6 +18,7 @@ class Chess:
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
         self.animation_speed = animation_speed
         
+        self.game_running = True
         self.configurator = configurator
         self.board_state = BoardState()
         self.board = self.board_state.getBoard()
@@ -112,22 +114,38 @@ class Chess:
         return 'W' if self.board_state.turn else 'B'
 
     def boardPressEvent(self, e) -> None:
+        if not self.game_running:
+            return 
+
         x, y = self.getPos(e.x, e.y)
         index = self.getIndex(x, y)
         piece_drawable = False
         preview_drawable = False
+        turn = self.getTurn() 
 
-        if self.select is not False and self.board[index].col != self.getTurn():
-            turn = self.getTurn()                
+        if self.select is not False and self.board[index].col != turn:
             try:
                 self.board_state.push(self.select, index)
-            except Exception as e:
-                print(e)
+            except InvalidMove:
                 self.select = index if self.board[index].name not in ('E', turn) else False
+            except Check:
+                print("Check")
+                self.select = False
+            except Checkmate:
+                print("Checkmate")
+                self.game_running = False
+                self.select = False
+                piece_drawable = True
+            except Stalemate:
+                print("Stalemate")
+                self.game_running = False
+                self.select = False
+                piece_drawable = True
             else:
-                self.animate(self.select, index)
+                # self.animate(self.select, index)
                 piece_drawable = True
                 self.select = False
+
             self.board = self.board_state.getBoard()
         else:
             self.select = index if self.board[index].name != 'E' else False
@@ -252,6 +270,9 @@ class Chess:
             )
 
     def updateGame(self) -> None:
+        if not self.game_running:
+            return 
+
         self.update_root()
         self.canvas_piece = dict.fromkeys(range(0, 64))
         size = self.getBoardSize()

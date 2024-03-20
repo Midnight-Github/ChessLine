@@ -1,19 +1,4 @@
-class OpponentsPiece(Exception):
-    pass
-
-class OpponentPreview(Exception):
-    pass
-
-class EmptyBox(Exception):
-    pass
-
-class CaptureOwnPiece(Exception):
-    pass
-
 class Check(Exception):
-    pass
-
-class InvalidPromotionInput(Exception):
     pass
 
 class Stalemate(Exception):
@@ -22,13 +7,8 @@ class Stalemate(Exception):
 class KingNotFound(Exception):
     pass
 
-class TimeOut(Exception):
-    def __init__(self, col: str) -> None:
-        super().__init__(col)
-
 class InvalidMove(Exception): 
-    def __init__(self, piece: str) -> None:
-        super().__init__(piece)
+    pass
 
 class Checkmate(Exception):
     def __init__(self, col: str) -> None:

@@ -56,7 +56,7 @@ class BoardState:
         self.__board[start_pos] = Piece('E', 'N')
 
         if move != None: 
-            self.__move_history += move+' '
+            self.__move_history += move + ' '
 
     def commitMove(self, start_pos: int, end_pos: int, move: str | None, pseudo: bool=False) -> None:
         checkmove = VerifyMove(self.__board)
@@ -68,9 +68,9 @@ class BoardState:
             if pseudo:
                 promo = 'Z'
             else:
-                promo = input("Promote to: ").upper()
+                promo = input("Promote to: ").upper() # add ui to select promotion piece
                 if promo not in "QBNR": 
-                    raise InvalidPromotionInput
+                    raise Exception("Invalid promotion input")
 
             self.__move(start_pos, end_pos, move)
             self.__board[end_pos].name = promo
@@ -118,9 +118,8 @@ class BoardState:
         is_empty_space = col == 'N'
         is_correct_piece = (True if self.turn == (col == 'W') else False) if self.turn != None else (True)
         
-        if is_empty_space: raise EmptyBox
-        elif not is_correct_piece: raise OpponentsPiece
-        elif is_same_colour: raise CaptureOwnPiece
+        if is_empty_space or not is_correct_piece or is_same_colour: 
+            raise InvalidMove
 
         self.commitMove(start_pos, end_pos, self.__getChessCoords(start_pos) + self.__getChessCoords(end_pos))
 

@@ -244,34 +244,34 @@ class VerifyMove:
     def __primaryValidation(self) -> bool:
         if self.name == 'P':
             if self.end_pos not in self.__pawn(self.start_pos, self.col): 
-                raise InvalidMove("pawn")
+                raise InvalidMove
 
         elif self.name == 'R': 
             if self.end_pos not in self.__rook(self.start_pos, self.col): 
-                raise InvalidMove("rook")
+                raise InvalidMove
         
         elif self.name == 'N':
             if self.end_pos not in self.__knight(self.start_pos, self.col): 
-                raise InvalidMove("knight")
+                raise InvalidMove
 
         elif self.name == 'B':
             if self.end_pos not in self.__bishop(self.start_pos, self.col): 
-                raise InvalidMove("bishop")
+                raise InvalidMove
 
         elif self.name == 'Q':
             if self.end_pos not in self.__queen(self.start_pos, self.col): 
-                raise InvalidMove("queen")
+                raise InvalidMove
 
         elif self.name == 'K':
             if self.end_pos not in self.__king(self.start_pos, self.col): 
-                raise InvalidMove("king")
+                raise InvalidMove
 
         elif self.name == 'Z':
             if self.end_pos not in self.__king(self.start_pos, self.col) + self.__knight(self.start_pos, self.col): 
-                raise InvalidMove("Z")
+                raise InvalidMove
 
         else: 
-            raise Exception
+            raise Exception("Invalid piece name")
 
         return True
                 
