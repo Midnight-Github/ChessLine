@@ -158,14 +158,14 @@ class Chess:
                 preview_drawable = True
 
         self.clearCanvas('preview')
-        self.clearCanvas('highlight')
         
         fxns = list()
+        if len(self.highlight_pos) == 2 and piece_drawable:
+            self.clearCanvas('highlight')
+            fxns.append(self.drawHighlight)
+
         if piece_drawable:
             fxns.append(self.drawPieces)
-
-        if len(self.highlight_pos) == 2:
-            fxns.append(self.drawHighlight)
 
         if preview_drawable:
             fxns.append(self.drawPreview)
