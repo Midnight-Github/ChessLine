@@ -18,12 +18,11 @@ class Chess:
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
         self.animation_speed = animation_speed
         
-        self.game_running = True
         self.configurator = configurator
         self.board_state = BoardState()
         self.board = self.board_state.getBoard()
         self.chess_image = Image("\\..\\data\\chess_pieces.png")
-        self.canvas_piece = dict.fromkeys(range(0, 64))
+        self.prev_board_piece_info = dict.fromkeys(range(0, 64))
 
         self.board_frame.grid_rowconfigure(1, weight=1)
         self.board_frame.grid_columnconfigure(0, weight=1)
@@ -43,6 +42,8 @@ class Chess:
         self.setWhiteUi()
 
         self.select = False
+        self.running = True
+        self.highlight_pos = list()
         self.preview_pos = list()
 
     def updateChessPieceImage(self) -> None:
@@ -103,9 +104,9 @@ class Chess:
     def animate(self, initial: int, final: int) -> None:
         if initial == final:
             return
-        # self.board_canvas.move(self.canvas_piece[0], 60, 0)
+        # self.board_canvas.move(self.prev_board_piece_info[0], 60, 0)
         # print(initial, final)
-        # print(type(self.canvas_piece[0]))
+        # print(type(self.prev_board_piece_info[0]))
         # time.sleep(5)
         # self.board_canvas.move(initial - 60, final)
         # self.board_canvas.after(50, self.animate(initial - self.animation_speed, final))
@@ -114,7 +115,7 @@ class Chess:
         return 'W' if self.board_state.turn else 'B'
 
     def boardPressEvent(self, e) -> None:
-        if not self.game_running:
+        if not self.running:
             return 
 
         x, y = self.getPos(e.x, e.y)
@@ -133,16 +134,17 @@ class Chess:
                 self.select = False
             except Checkmate:
                 print("Checkmate")
-                self.game_running = False
+                self.running = False
                 self.select = False
                 piece_drawable = True
             except Stalemate:
                 print("Stalemate")
-                self.game_running = False
+                self.running = False
                 self.select = False
                 piece_drawable = True
             else:
                 # self.animate(self.select, index)
+                self.highlight_pos = [self.select, index]
                 piece_drawable = True
                 self.select = False
 
@@ -156,10 +158,14 @@ class Chess:
                 preview_drawable = True
 
         self.clearCanvas('preview')
+        self.clearCanvas('highlight')
         
         fxns = list()
         if piece_drawable:
             fxns.append(self.drawPieces)
+
+        if len(self.highlight_pos) == 2:
+            fxns.append(self.drawHighlight)
 
         if preview_drawable:
             fxns.append(self.drawPreview)
@@ -227,7 +233,7 @@ class Chess:
             return
         
         piece_info = self.board[board_index].col + self.board[board_index].name
-        if self.canvas_piece[board_index] != piece_info:
+        if self.prev_board_piece_info[board_index] != piece_info:
             self.board_canvas.delete("#" + str(board_index))
             self.board_canvas.create_image(
                 x*box_size + box_size/14,
@@ -236,7 +242,34 @@ class Chess:
                 image=self.chess_piece_image[piece_info],
                 tags=("#" + str(board_index), "piece")
             )
-            self.canvas_piece[board_index] = piece_info
+            self.prev_board_piece_info[board_index] = piece_info
+
+    def drawHighlight(self, **kwargs) -> None:
+        x = kwargs['x']
+        y = kwargs['y']
+        box_size = kwargs['box_size']
+        board_index = kwargs["board_index"]
+
+        if board_index == self.highlight_pos[0]:
+            self.board_canvas.create_rectangle( 
+                x*box_size, 
+                y*box_size, 
+                x*box_size + box_size, 
+                y*box_size + box_size,
+                fill="yellow",
+                tags="highlight"
+            )
+
+        if board_index == self.highlight_pos[1]:
+            self.board_canvas.create_rectangle( 
+                x*box_size, 
+                y*box_size, 
+                x*box_size + box_size, 
+                y*box_size + box_size,
+                outline="yellow",
+                width=5,
+                tags="highlight"
+            )
 
     def drawPreview(self, **kwargs) -> None:
         x = kwargs['x']
@@ -270,11 +303,11 @@ class Chess:
             )
 
     def updateGame(self) -> None:
-        if not self.game_running:
+        if not self.running:
             return 
 
         self.update_root()
-        self.canvas_piece = dict.fromkeys(range(0, 64))
+        self.prev_board_piece_info = dict.fromkeys(range(0, 64))
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
         self.updateChessPieceImage()
