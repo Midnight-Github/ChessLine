@@ -124,12 +124,12 @@ class BoardState:
         self.commitMove(start_pos, end_pos, self.__getChessCoords(start_pos) + self.__getChessCoords(end_pos))
 
         check_move = VerifyMove(self.__board)
-        if check_move.check(self.__getKingPos(col), col): # self check
+        if check_move.check(self.getKingPos(col), col): # self check
             self.__board = board_backup
             self.__move_history = move_history_backup
             raise Check
 
-        if check_move.check(self.__getKingPos(opp_col), opp_col):
+        if check_move.check(self.getKingPos(opp_col), opp_col):
             if self.__stalemate(opp_col):
                 raise Checkmate('White' if col == 'W' else 'Black')
 
@@ -139,15 +139,25 @@ class BoardState:
         self.__prev_end_pos = end_pos
         self.turn = not self.turn
 
-    def __getKingPos(self, col: str) -> int:
+    def getKingPos(self, col: str) -> int:
         for i in range(64):
             if self.__board[i].name == 'K':
                 if self.__board[i].col == (col):
                     return i
         raise KingNotFound
 
+    def getKingThreats(self, col: str) -> list:
+        return VerifyMove(self.__board).getKingThreats(self.getKingPos(col), col)
+
+    def getNewKingThreats(self, start: int, end: int, col: str) -> list:
+        original_board = deepcopy(self.__board)
+        self.commitMove(start, end, None, pseudo=True)
+        threats = VerifyMove(self.__board).getKingThreats(self.getKingPos(col), col)
+        self.__board = deepcopy(original_board)
+        return threats
+
     def __stalemate(self, col: str) -> bool:
-        king_pos = self.__getKingPos(col)
+        king_pos = self.getKingPos(col)
         original_board = deepcopy(self.__board)
         vm = VerifyMove(original_board)
         for i in range(64):

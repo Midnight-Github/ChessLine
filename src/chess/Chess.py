@@ -43,7 +43,8 @@ class Chess:
 
         self.select = False
         self.running = True
-        self.highlight_pos = list()
+        self.king_threats = list()
+        self.highlight_pos = list((None, None))
         self.preview_pos = list()
 
     def updateChessPieceImage(self) -> None:
@@ -122,6 +123,7 @@ class Chess:
         index = self.getIndex(x, y)
         piece_drawable = False
         preview_drawable = False
+        threat_drawable = False
         turn = self.getTurn() 
 
         if self.select is not False and self.board[index].col != turn:
@@ -130,15 +132,22 @@ class Chess:
             except InvalidMove:
                 self.select = index if self.board[index].name not in ('E', turn) else False
             except Check:
-                print("Check")
+                self.king_threats = self.board_state.getNewKingThreats(self.select, index, turn)
+                self.king_threats.append(self.board_state.getKingPos(turn))
+                threat_drawable = True
                 self.select = False
             except Checkmate:
-                print("Checkmate")
+                self.highlight_pos = [self.select, index]
+                self.king_threats = self.board_state.getKingThreats('B' if self.board_state.turn else 'W')
+                self.king_threats.append(self.board_state.getKingPos('B' if self.board_state.turn else 'W'))
+                threat_drawable = True
                 self.running = False
                 self.select = False
                 piece_drawable = True
             except Stalemate:
-                print("Stalemate")
+                self.highlight_pos = [self.select, index]
+                self.king_threats.append(self.board_state.getKingPos('B' if self.board_state.turn else 'W'))
+                threat_drawable = True
                 self.running = False
                 self.select = False
                 piece_drawable = True
@@ -147,7 +156,8 @@ class Chess:
                 self.highlight_pos = [self.select, index]
                 piece_drawable = True
                 self.select = False
-
+                self.king_threats.clear()
+            
             self.board = self.board_state.getBoard()
         else:
             self.select = index if self.board[index].name != 'E' else False
@@ -158,13 +168,17 @@ class Chess:
                 preview_drawable = True
 
         self.clearCanvas('preview')
+        self.clearCanvas('threat')
         
         fxns = list()
         if len(self.highlight_pos) == 2 and piece_drawable:
             self.clearCanvas('highlight')
             fxns.append(self.drawHighlight)
 
-        if piece_drawable:
+        if threat_drawable:
+            fxns.append(self.drawThreats)
+
+        if piece_drawable or threat_drawable:
             fxns.append(self.drawPieces)
 
         if preview_drawable:
@@ -172,6 +186,9 @@ class Chess:
 
         if fxns:
             self.draw(*fxns)
+
+    def clearCanvas(self, tag: str="all") -> None:
+        self.board_canvas.delete(tag)
 
     def draw(self, *fxns: Callable) -> None:
         box_colors = ("white", self.configurator.config["board"]["color"])
@@ -182,9 +199,6 @@ class Chess:
                 for i in fxns:
                     i(x=x, y=y, box_colors=box_colors, box_size=box_size, board_index=board_index)
                 board_index += 1
-
-    def clearCanvas(self, tag: str="all") -> None:
-        self.board_canvas.delete(tag)
 
     def drawBoard(self, **kwargs) -> None:
         x = kwargs['x']
@@ -233,7 +247,7 @@ class Chess:
             return
         
         piece_info = self.board[board_index].col + self.board[board_index].name
-        if self.prev_board_piece_info[board_index] != piece_info:
+        if self.prev_board_piece_info[board_index] != piece_info or board_index in self.king_threats: # not working
             self.board_canvas.delete("#" + str(board_index))
             self.board_canvas.create_image(
                 x*box_size + box_size/14,
@@ -250,24 +264,13 @@ class Chess:
         box_size = kwargs['box_size']
         board_index = kwargs["board_index"]
 
-        if board_index == self.highlight_pos[0]:
+        if board_index in self.highlight_pos:
             self.board_canvas.create_rectangle( 
                 x*box_size, 
                 y*box_size, 
                 x*box_size + box_size, 
                 y*box_size + box_size,
                 fill="yellow",
-                tags="highlight"
-            )
-
-        if board_index == self.highlight_pos[1]:
-            self.board_canvas.create_rectangle( 
-                x*box_size, 
-                y*box_size, 
-                x*box_size + box_size, 
-                y*box_size + box_size,
-                outline="yellow",
-                width=5,
                 tags="highlight"
             )
 
@@ -302,15 +305,28 @@ class Chess:
                 tags="preview"
             )
 
-    def updateGame(self) -> None:
-        if not self.running:
-            return 
+    def drawThreats(self, **kwargs) -> None:
+        x = kwargs['x']
+        y = kwargs['y']
+        box_size = kwargs["box_size"]
+        board_index = kwargs["board_index"]
 
+        if board_index in self.king_threats:
+            self.board_canvas.create_rectangle( 
+                x*box_size + box_size/15, 
+                y*box_size + box_size/15, 
+                x*box_size + box_size - box_size/15, 
+                y*box_size + box_size - box_size/15,
+                fill="red",
+                tags="threat"
+            )
+
+    def updateGame(self) -> None:
         self.update_root()
         self.prev_board_piece_info = dict.fromkeys(range(0, 64))
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
         self.updateChessPieceImage()
         self.clearCanvas()
-        self.draw(self.drawBoard, self.drawPreview, self.drawPieces)
+        self.draw(self.drawBoard, self.drawHighlight, self.drawThreats, self.drawPieces, self.drawPreview)
         

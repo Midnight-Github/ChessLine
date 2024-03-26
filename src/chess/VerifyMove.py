@@ -241,6 +241,38 @@ class VerifyMove:
         
         return False
 
+    def getKingThreats(self, pos: int, col: str) -> list:
+        threat_pos = list()
+        for i in self.__knight(pos, ''):
+            if self.board[i].name == 'N' and self.board[i].col != col:
+                threat_pos.append(i)
+
+        for i in self.__rook(pos, ''):
+            if self.board[i].name in 'QR' and self.board[i].col != col:
+                threat_pos.append(i)
+
+        for i in self.__bishop(pos, ''):
+            if self.board[i].name in 'QB' and self.board[i].col != col:
+                threat_pos.append(i)
+
+        for i in self.__king(pos, ''):
+            if self.board[i].name in 'K' and self.board[i].col != col:
+                threat_pos.append(i)
+
+        s = lambda x: abs(pos//8 - x//8) <= 1 and abs(pos%8 - x%8) <= 1
+        if col == 'B':
+            if s(pos + (8 - 1)) and self.board[pos + (8 - 1)].name == 'P' and self.board[pos + (8 - 1)].col == 'W': 
+                threat_pos.append(pos + (8 - 1))
+            elif s(pos + (8 + 1)) and self.board[pos + (8 + 1)].name == 'P' and self.board[pos + (8 + 1)].col == 'W': 
+                threat_pos.append(pos + (8 + 1))
+        elif col == 'W':
+            if s(pos - (8 - 1)) and self.board[pos - (8 - 1)].name == 'P' and self.board[pos - (8 - 1)].col == 'B': 
+                threat_pos.append(pos - (8 - 1))
+            elif s(pos - (8 + 1)) and self.board[pos - (8 + 1)].name == 'P' and self.board[pos - (8 + 1)].col == 'B': 
+                threat_pos.append(pos - (8 + 1))
+        
+        return threat_pos
+
     def __primaryValidation(self) -> bool:
         if self.name == 'P':
             if self.end_pos not in self.__pawn(self.start_pos, self.col): 
@@ -271,7 +303,7 @@ class VerifyMove:
                 raise InvalidMove
 
         else: 
-            raise Exception("Invalid piece name")
+            raise Exception("Invalid piece name:", self.name)
 
         return True
                 
