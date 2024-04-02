@@ -6,17 +6,20 @@ from math import floor
 from var.Globals import configurator
 from reader.Image import Image
 from chess.Errors import *
+from time import time
+from threading import Thread
 
 class Chess:
     def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
-        timer: tuple[int, int]=(600, 600), animation_speed: int=1) -> None:
+        timer: tuple[int, int]=(600, 600), animation_speed: int=1, competitive: bool=False) -> None:
 
         self.board_frame = board_frame
         self.update_root = update_root
         self.face = face
         self.name = (name[0] + " (White)", name[1] + " (Black)")
         self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
-        self.animation_speed = animation_speed
+        self.animation_speed = animation_speed # get from configurator
+        self.competitive = competitive
         
         self.configurator = configurator
         self.board_state = BoardState()
@@ -114,6 +117,9 @@ class Chess:
     
     def getTurn(self) -> str:
         return 'W' if self.board_state.turn else 'B'
+    
+    def getAntiTurn(self) -> str:
+        return 'B' if self.board_state.turn else 'W'
 
     def boardPressEvent(self, e) -> None:
         if not self.running:
@@ -138,15 +144,15 @@ class Chess:
                 self.select = False
             except Checkmate:
                 self.highlight_pos = [self.select, index]
-                self.king_threats = self.board_state.getKingThreats('B' if self.board_state.turn else 'W')
-                self.king_threats.append(self.board_state.getKingPos('B' if self.board_state.turn else 'W'))
+                self.king_threats = self.board_state.getKingThreats(self.getAntiTurn())
+                self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
                 self.running = False
                 self.select = False
                 piece_drawable = True
             except Stalemate:
                 self.highlight_pos = [self.select, index]
-                self.king_threats.append(self.board_state.getKingPos('B' if self.board_state.turn else 'W'))
+                self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
                 self.running = False
                 self.select = False
