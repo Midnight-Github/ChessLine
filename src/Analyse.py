@@ -27,9 +27,7 @@ def endsWith(string:str, seq:Sequence) -> bool:
     return False
 
 @totalLines
-def countLines(path:str, extensions:Sequence=(".py"), black_list:Sequence=("__pycache__", "__init__.py", "config"), 
-    indent:int=0) -> tuple[int, int]:
-
+def countLines(path:str, extensions:Sequence, black_list:Sequence, indent:int=0) -> tuple[int, int]:
     total_lines = 0
     if indent == 0: 
         search = re.search(r'([\\/]?)(.+)$', path)
@@ -43,7 +41,7 @@ def countLines(path:str, extensions:Sequence=(".py"), black_list:Sequence=("__py
 
         if os.path.isdir(curr_path):
             print('    '*indent + '-'*10, i, '-'*10)
-            countLines(curr_path, black_list=black_list, indent=indent + 1)
+            countLines(curr_path, extensions=extensions, black_list=black_list, indent=indent + 1)
 
         if endsWith(i, extensions):
             lines = 0
@@ -54,4 +52,4 @@ def countLines(path:str, extensions:Sequence=(".py"), black_list:Sequence=("__py
         
     return (total_lines, indent)
 
-countLines("src")
+countLines("src", ".py, .toml", ("__pycache__", "__init__.py", "config"))
