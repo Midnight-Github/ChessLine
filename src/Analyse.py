@@ -30,9 +30,11 @@ def endsWith(string:str, seq:Sequence) -> bool:
 def countLines(path:str, extensions:Sequence, black_list:Sequence, indent:int=0) -> tuple[int, int]:
     total_lines = 0
     if indent == 0: 
-        search = re.search(r'([\\/]?)(.+)$', path)
-        if search is not None:
-            print('-'*10, search.group(2), '-'*10)
+        search = re.search(r'[\\/](\w+)$', path)
+        if search is None:
+            raise ValueError("Cannot find dir name in specified path")
+        
+        print('-'*10, search.group(1), '-'*10)
 
     for i in os.listdir(path):
         curr_path = path + "/" + i
