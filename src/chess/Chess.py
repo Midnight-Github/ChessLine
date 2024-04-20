@@ -121,6 +121,12 @@ class Chess:
     def getAntiTurn(self) -> str:
         return 'B' if self.board_state.turn else 'W'
 
+    # def incTimer(self):
+    #     if self.getTurn() == 'W':
+            
+    #     else:
+
+
     def boardPressEvent(self, e) -> None:
         if not self.running:
             return 
