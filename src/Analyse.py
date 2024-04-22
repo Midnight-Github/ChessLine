@@ -27,10 +27,10 @@ def endsWith(string:str, seq:Sequence) -> bool:
     return False
 
 @totalLines
-def countLines(path:str, extensions:Sequence, black_list:Sequence, indent:int=1) -> tuple[int, int]:
+def countLines(path:str, extensions:Sequence, black_list:Sequence=tuple(), indent:int=1) -> tuple[int, int]:
     total_lines = 0
     if indent == 1: 
-        search = re.search(r'[\\/]?(\w+)$', path)
+        search = re.search(r'[\\/]?([^\\^/]+)$', path)
         if search is None:
             raise ValueError("Cannot find dir name in specified path")
         
@@ -54,4 +54,4 @@ def countLines(path:str, extensions:Sequence, black_list:Sequence, indent:int=1)
         
     return (total_lines, indent)
 
-countLines("src", ".py, .toml", ("__pycache__", "__init__.py"))
+countLines("src", (".py", ".toml"), ("__pycache__", "__init__.py"))
