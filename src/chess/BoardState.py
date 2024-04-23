@@ -69,6 +69,8 @@ class BoardState:
                 promo = 'Z'
             else:
                 promo = input("Promote to: ").upper() # add ui to select promotion piece
+                if promo == 'K':
+                    promo = 'N'
                 if promo not in "QBNR": 
                     raise Exception("Invalid promotion input")
 
