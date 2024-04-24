@@ -11,17 +11,16 @@ from CTkMessagebox import CTkMessagebox
 
 class Chess: # convention: 0 -> white, 1 -> black
     def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
-        timer: tuple[int, int]=(600, 600), animation_speed: int=1, competitive: bool=False) -> None:
+        timer: tuple[int, int]=(600, 600), animation_speed: int=1) -> None:
 
         self.board_frame = board_frame
         self.update_root = update_root
         self.face = face
         self.name = (name[0] + " (White)", name[1] + " (Black)")
-        self.display_timer = (tk.StringVar(value=self.formatTime(timer[0])), 
+        self.display_timer = (tk.StringVar(value=self.formatTime(timer[0])),
             tk.StringVar(value=self.formatTime(timer[1]))
         )
         self.animation_speed = animation_speed # get from configurator
-        self.competitive = competitive
         
         self.configurator = configurator
         self.board_state = BoardState()
@@ -41,7 +40,7 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.board_canvas.bind("<ButtonPress-1>", self.boardPressEvent)
         self.board_canvas.grid(row=1, column=0, padx=10)
 
-        self.white_ui = ctk.CTkFrame(self.board_frame)
+        self.white_ui = ctk.CTkFrame(self.board_frame, border_width=2)
         self.white_ui.grid(row=2, column=0, padx=10, pady=10, sticky="nesw")
         self.white_ui.grid_columnconfigure(1, weight=1)
         self.setWhiteUi()
@@ -58,7 +57,7 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.highlight_pos = list((None, None))
         self.preview_pos = list()
 
-    def setUpTimer(self):
+    def setUpTimer(self) -> None:
         self.timer[0].stopTimer()
         self.timer[1].stopTimer()
         self.timer[0].start()
@@ -110,17 +109,17 @@ class Chess: # convention: 0 -> white, 1 -> black
 
     def setBlackUi(self) -> None:
         self.black_name_label = ctk.CTkLabel(self.black_ui, text=self.name[1])
-        self.black_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
+        self.black_name_label.grid(row=0, column=0, padx=10, pady=2, sticky="nesw")
 
         self.black_timer_label = ctk.CTkLabel(self.black_ui, textvariable=self.display_timer[1])
-        self.black_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
+        self.black_timer_label.grid(row=0, column=2, padx=10, pady=2, sticky="nesw")
 
     def setWhiteUi(self) -> None:
         self.white_name_label = ctk.CTkLabel(self.white_ui, text=self.name[0])
-        self.white_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
+        self.white_name_label.grid(row=0, column=0, padx=10, pady=2, sticky="nesw")
 
         self.white_timer_label = ctk.CTkLabel(self.white_ui, textvariable=self.display_timer[0])
-        self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
+        self.white_timer_label.grid(row=0, column=2, padx=10, pady=2, sticky="nesw")
 
     def getBoardSize(self) -> float:
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, 
@@ -189,7 +188,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
                 self.terminateGame()
-                self.displayWinner(turn, " \nby checkmate!")
+                self.displayWinner(turn, " by checkmate!")
                 self.select = False
                 piece_drawable = True
             except Stalemate:
@@ -197,7 +196,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
                 self.terminateGame()
-                self.displayWinner('N', "")
+                self.displayWinner('N', '')
                 self.select = False
                 piece_drawable = True
             else:
@@ -229,18 +228,30 @@ class Chess: # convention: 0 -> white, 1 -> black
 
         if piece_drawable or threat_drawable:
             fxns.append(self.drawPieces)
-            if turn == 'W':
-                self.timer[1].startTimer()
-                self.timer[0].stopTimer()
-            else:
-                self.timer[0].startTimer()
-                self.timer[1].stopTimer()
+            self.updateTimer()
+            self.updateTurnHighlight()
 
         if preview_drawable:
             fxns.append(self.drawPreview)
 
         if fxns:
             self.draw(*fxns)
+
+    def updateTimer(self) -> None:
+        if self.getAntiTurn() == 'W':
+            self.timer[1].startTimer()
+            self.timer[0].stopTimer()
+        else:
+            self.timer[0].startTimer()
+            self.timer[1].stopTimer()
+
+    def updateTurnHighlight(self) -> None:
+        if self.getTurn() == 'W':
+            self.white_ui.configure(border_width=2)
+            self.black_ui.configure(border_width=0)
+        else:
+            self.black_ui.configure(border_width=2)
+            self.white_ui.configure(border_width=0)
 
     def clearCanvas(self, tag: str="all") -> None:
         self.board_canvas.delete(tag)
@@ -381,6 +392,8 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.prev_board_piece_info = dict.fromkeys(range(0, 64))
         size = self.getBoardSize()
         self.board_canvas.configure(height=size, width=size)
+        self.black_ui.configure(border_color=self.configurator.config["board"]["color"])
+        self.white_ui.configure(border_color=self.configurator.config["board"]["color"])
         self.updateChessPieceImage()
         self.clearCanvas()
         self.draw(self.drawBoard, self.drawHighlight, self.drawThreats, self.drawPieces, self.drawPreview)

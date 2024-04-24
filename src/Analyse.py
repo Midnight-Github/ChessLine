@@ -16,7 +16,7 @@ def totalLines(func):
             if indent < k:
                 total_lines += v
 
-        print('    '*indent + "Total Lines:", total_lines + dir_total_lines)
+        print('    '*(indent - 1) + "Total Lines:", total_lines + dir_total_lines)
 
     return wrapper
 
