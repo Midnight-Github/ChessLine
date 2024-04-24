@@ -6,10 +6,10 @@ from math import floor
 from var.Globals import configurator
 from reader.Image import Image
 from chess.Errors import *
-from time import time
-from threading import Thread
+from chess.Timer import Timer
+from CTkMessagebox import CTkMessagebox
 
-class Chess:
+class Chess: # convention: 0 -> white, 1 -> black
     def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
         timer: tuple[int, int]=(600, 600), animation_speed: int=1, competitive: bool=False) -> None:
 
@@ -17,7 +17,9 @@ class Chess:
         self.update_root = update_root
         self.face = face
         self.name = (name[0] + " (White)", name[1] + " (Black)")
-        self.timer = (tk.StringVar(value=self.formatTime(timer[0])), tk.StringVar(value=self.formatTime(timer[1])))
+        self.display_timer = (tk.StringVar(value=self.formatTime(timer[0])), 
+            tk.StringVar(value=self.formatTime(timer[1]))
+        )
         self.animation_speed = animation_speed # get from configurator
         self.competitive = competitive
         
@@ -44,11 +46,37 @@ class Chess:
         self.white_ui.grid_columnconfigure(1, weight=1)
         self.setWhiteUi()
 
+        self.timer = (Timer(timer[0], lambda i: self.display_timer[0].set(self.formatTime(i)), self.timeOutWhite),
+            Timer(timer[1], lambda i: self.display_timer[1].set(self.formatTime(i)), self.timeOutBlack)
+        )
+        self.setUpTimer()
+        self.white_timer_running = False
+        self.black_timer_running = False
         self.select = False
         self.running = True
         self.king_threats = list()
         self.highlight_pos = list((None, None))
         self.preview_pos = list()
+
+    def setUpTimer(self):
+        self.timer[0].stopTimer()
+        self.timer[1].stopTimer()
+        self.timer[0].start()
+        self.timer[1].start()
+
+    def timeOutWhite(self) -> None:
+        print("Black wins")
+        self.terminateGame()
+        self.displayWinner('B', " by time out!")
+
+    def timeOutBlack(self) -> None:
+        self.terminateGame()
+        self.displayWinner('W', " by time out!")
+
+    def terminateGame(self) -> None:
+        self.running = False
+        self.timer[0].killTimer()
+        self.timer[1].killTimer()
 
     def updateChessPieceImage(self) -> None:
         size = self.getBoardSize()
@@ -74,24 +102,24 @@ class Chess:
 
         self.chess_piece_image = chess_piece_image
 
-    def formatTime(self, t: int) -> str:
+    def formatTime(self, time: int) -> str:
         insert_0 = lambda t: t if len(t) == 2 else '0' + t
-        mins = str(t//60)
-        secs = str(t%6)
+        mins = str(time//60)
+        secs = str(time%60)
         return f"{insert_0(mins)}:{insert_0(secs)}"
 
     def setBlackUi(self) -> None:
         self.black_name_label = ctk.CTkLabel(self.black_ui, text=self.name[1])
         self.black_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
 
-        self.black_timer_label = ctk.CTkLabel(self.black_ui, textvariable=self.timer[1])
+        self.black_timer_label = ctk.CTkLabel(self.black_ui, textvariable=self.display_timer[1])
         self.black_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
     def setWhiteUi(self) -> None:
         self.white_name_label = ctk.CTkLabel(self.white_ui, text=self.name[0])
         self.white_name_label.grid(row=0, column=0, padx=10, sticky="nesw")
 
-        self.white_timer_label = ctk.CTkLabel(self.white_ui, textvariable=self.timer[0])
+        self.white_timer_label = ctk.CTkLabel(self.white_ui, textvariable=self.display_timer[0])
         self.white_timer_label.grid(row=0, column=2, padx=10, sticky="nesw")
 
     def getBoardSize(self) -> float:
@@ -121,11 +149,18 @@ class Chess:
     def getAntiTurn(self) -> str:
         return 'B' if self.board_state.turn else 'W'
 
-    # def incTimer(self):
-    #     if self.getTurn() == 'W':
-            
-    #     else:
-
+    def displayWinner(self, winner:str, reason:str) -> None:
+        match(winner):
+            case 'N':
+                msg = "It's a stalemate"
+            case 'W':
+                msg = "White wins"
+            case 'B':
+                msg = "Black wins"
+            case _:
+                raise ValueError("Invalid winner tag:", winner)
+        
+        CTkMessagebox(title="Game over", message=(msg + reason), icon="info", option_1="Ok")
 
     def boardPressEvent(self, e) -> None:
         if not self.running:
@@ -153,14 +188,16 @@ class Chess:
                 self.king_threats = self.board_state.getKingThreats(self.getAntiTurn())
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
-                self.running = False
+                self.terminateGame()
+                self.displayWinner(turn, " \nby checkmate!")
                 self.select = False
                 piece_drawable = True
             except Stalemate:
                 self.highlight_pos = [self.select, index]
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
-                self.running = False
+                self.terminateGame()
+                self.displayWinner('N', "")
                 self.select = False
                 piece_drawable = True
             else:
@@ -192,6 +229,12 @@ class Chess:
 
         if piece_drawable or threat_drawable:
             fxns.append(self.drawPieces)
+            if turn == 'W':
+                self.timer[1].startTimer()
+                self.timer[0].stopTimer()
+            else:
+                self.timer[0].startTimer()
+                self.timer[1].stopTimer()
 
         if preview_drawable:
             fxns.append(self.drawPreview)

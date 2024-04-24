@@ -32,6 +32,8 @@ class OfflineNewGame(ctk.CTkFrame):
         warning_popup = CTkMessagebox(title="Quit", message="Do you want to quit?",
                         icon="question", option_1="No", option_2="Yes")
 
+        self.chess.terminateGame()
+
         if warning_popup.get() == "Yes":
             self.root.setActivePage("Home", "Home")
             self.root.deleteFrame("OfflineNewGame")
