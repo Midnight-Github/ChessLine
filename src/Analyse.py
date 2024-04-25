@@ -9,14 +9,14 @@ def getLine(path):
 def totalLines(func):
     lines = dict.fromkeys(range(0, 128), 0)
     def wrapper(*args, **kwargs):
-        dir_total_lines, indent = func(*args, **kwargs)
-        lines[indent] += dir_total_lines
+        sub_total_lines, indent = func(*args, **kwargs)
+        lines[indent] += sub_total_lines
         total_lines = 0
         for k, v in lines.items():
             if indent < k:
                 total_lines += v
 
-        print('    '*(indent - 1) + "Total Lines:", total_lines + dir_total_lines)
+        print('    '*(indent - 1) + "Total Lines:", total_lines + sub_total_lines)
 
     return wrapper
 
