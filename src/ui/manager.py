@@ -62,9 +62,10 @@ class Manager(ctk.CTk):
         raise ValueError(frame, "does not match with any frame objects")
 
     def getMainPage(self, frame: str) -> str:
-        if self.strToFrame(frame) in self.main_pages:
+        frame_str = self.strToFrame(frame)
+        if frame_str in self.main_pages:
             return frame
-        if self.strToFrame(frame) in self.home:
+        if frame_str in self.home:
             return "Home"
         raise ValueError(frame, "does not match with any frame objects")
 

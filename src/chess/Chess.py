@@ -66,14 +66,16 @@ class Chess: # convention: 0 -> white, 1 -> black
     def timeOutWhite(self) -> None:
         print("Black wins")
         self.terminateGame()
-        self.displayWinner('B', " by time out!")
+        self.displayWinner('B', "Time out!")
 
     def timeOutBlack(self) -> None:
         self.terminateGame()
-        self.displayWinner('W', " by time out!")
+        self.displayWinner('W', "Time out!")
 
     def terminateGame(self) -> None:
         self.running = False
+        self.white_ui.configure(border_width=0)
+        self.black_ui.configure(border_width=0)
         self.timer[0].killTimer()
         self.timer[1].killTimer()
 
@@ -148,18 +150,18 @@ class Chess: # convention: 0 -> white, 1 -> black
     def getAntiTurn(self) -> str:
         return 'B' if self.board_state.turn else 'W'
 
-    def displayWinner(self, winner:str, reason:str) -> None:
+    def displayWinner(self, winner:str, reason:str='') -> None:
         match(winner):
             case 'N':
-                msg = "It's a stalemate"
+                msg = "Stalemate!\n"
             case 'W':
-                msg = "White wins"
+                msg = reason + "\nWhite wins"
             case 'B':
-                msg = "Black wins"
+                msg = reason + "\nBlack wins"
             case _:
                 raise ValueError("Invalid winner tag:", winner)
         
-        CTkMessagebox(title="Game over", message=(msg + reason), icon="info", option_1="Ok")
+        CTkMessagebox(title="Game over", message=msg, icon="info", option_1="Ok")
 
     def boardPressEvent(self, e) -> None:
         if not self.running:
@@ -167,6 +169,7 @@ class Chess: # convention: 0 -> white, 1 -> black
 
         x, y = self.getPos(e.x, e.y)
         index = self.getIndex(x, y)
+        terminate_game = False
         piece_drawable = False
         preview_drawable = False
         threat_drawable = False
@@ -187,16 +190,16 @@ class Chess: # convention: 0 -> white, 1 -> black
                 self.king_threats = self.board_state.getKingThreats(self.getAntiTurn())
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
-                self.terminateGame()
-                self.displayWinner(turn, " by checkmate!")
+                terminate_game = True
+                self.displayWinner(turn, "Checkmate!")
                 self.select = False
                 piece_drawable = True
             except Stalemate:
                 self.highlight_pos = [self.select, index]
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
-                self.terminateGame()
-                self.displayWinner('N', '')
+                terminate_game = True
+                self.displayWinner('N')
                 self.select = False
                 piece_drawable = True
             else:
@@ -237,13 +240,16 @@ class Chess: # convention: 0 -> white, 1 -> black
         if fxns:
             self.draw(*fxns)
 
+        if terminate_game:
+            self.terminateGame()
+
     def updateTimer(self) -> None:
-        if self.getAntiTurn() == 'W':
-            self.timer[1].startTimer()
-            self.timer[0].stopTimer()
-        else:
+        if self.getTurn() == 'W':
             self.timer[0].startTimer()
             self.timer[1].stopTimer()
+        else:
+            self.timer[1].startTimer()
+            self.timer[0].stopTimer()
 
     def updateTurnHighlight(self) -> None:
         if self.getTurn() == 'W':

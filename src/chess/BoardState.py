@@ -34,7 +34,6 @@ class BoardState:
         for i in range(16,48):
             self.__board[i] = Piece('E', 'N')
 
-        self.__move_history = ''
         self.__prev_end_pos = None
             
     def restart(self) -> None:
@@ -46,7 +45,7 @@ class BoardState:
 
         return VerifyMove(self.__board).getPossibleMoves(pos, self.__prev_end_pos)
 
-    def __move(self, start_pos: int, end_pos: int, move: str | None) -> None:
+    def __move(self, start_pos: int, end_pos: int) -> None:
         if self.__board[start_pos].moved: 
             self.__board[start_pos].moved_again = True
         else: 
@@ -55,10 +54,7 @@ class BoardState:
         self.__board[end_pos] = self.__board[start_pos]
         self.__board[start_pos] = Piece('E', 'N')
 
-        if move != None: 
-            self.__move_history += move + ' '
-
-    def commitMove(self, start_pos: int, end_pos: int, move: str | None, pseudo: bool=False) -> None:
+    def commitMove(self, start_pos: int, end_pos: int, pseudo: bool=False) -> None:
         checkmove = VerifyMove(self.__board)
         col = self.__board[start_pos].col
 
@@ -74,17 +70,17 @@ class BoardState:
                 if promo not in "QBNR": 
                     raise Exception("Invalid promotion input")
 
-            self.__move(start_pos, end_pos, move)
+            self.__move(start_pos, end_pos)
             self.__board[end_pos].name = promo
             # self.__board[end_pos].val = 9 if promo == 'Q' else 5 if promo == 'R' else 3.3 if promo == 'B' else 3.2
 
         elif move_type == "enpassant":
             killpos = end_pos + (8 if col == 'W' else -8)
-            self.__move(start_pos, end_pos, move)
+            self.__move(start_pos, end_pos)
             self.__board[killpos] = Piece('E', 'N')
             
         elif move_type == "castling":
-            self.__move(start_pos, end_pos, move)
+            self.__move(start_pos, end_pos)
             match(end_pos):
                 case 2:
                     rook_start_pos = 0
@@ -101,18 +97,12 @@ class BoardState:
                 case _: 
                     raise Exception("Castling condition not met")
 
-            self.__move(rook_start_pos, rook_end_pos, None)
+            self.__move(rook_start_pos, rook_end_pos)
         else:
-            self.__move(start_pos, end_pos, move)
-
-    def __getChessCoords(self, index: int) -> str:
-        x = index%8
-        y = index//8
-        return chr(x + 97) + str(8 - y)
+            self.__move(start_pos, end_pos)
                 
     def push(self, start_pos: int, end_pos: int) -> None:
         board_backup = deepcopy(self.__board)
-        move_history_backup = copy(self.__move_history)
         col = self.__board[start_pos].col
         opp_col = 'B' if col == 'W' else 'W'
 
@@ -123,12 +113,11 @@ class BoardState:
         if is_empty_space or not is_correct_piece or is_same_colour: 
             raise InvalidMove
 
-        self.commitMove(start_pos, end_pos, self.__getChessCoords(start_pos) + self.__getChessCoords(end_pos))
+        self.commitMove(start_pos, end_pos)
 
         check_move = VerifyMove(self.__board)
         if check_move.check(self.getKingPos(col), col): # self check
             self.__board = board_backup
-            self.__move_history = move_history_backup
             raise Check
 
         if check_move.check(self.getKingPos(opp_col), opp_col):
@@ -153,7 +142,7 @@ class BoardState:
 
     def getNewKingThreats(self, start: int, end: int, col: str) -> list:
         original_board = deepcopy(self.__board)
-        self.commitMove(start, end, None, pseudo=True)
+        self.commitMove(start, end, pseudo=True)
         threats = VerifyMove(self.__board).getKingThreats(self.getKingPos(col), col)
         self.__board = deepcopy(original_board)
         return threats
@@ -169,18 +158,12 @@ class BoardState:
             if self.__board[i].name == 'K':
                 move_king = True
             for pos in vm.getPossibleMoves(i, self.__prev_end_pos):
-                self.commitMove(i, pos, None, pseudo=True)
+                self.commitMove(i, pos, pseudo=True)
                 if not VerifyMove(self.__board).check(pos if move_king else king_pos, col):
                     self.__board = deepcopy(original_board)
                     return False
                 self.__board = deepcopy(original_board)
         return True
-                    
-    def getMoveHistory(self) -> str:
-        return self.__move_history
-
-    def loadGame(self, move_history: str) -> None:
-        self.__move_history = move_history
 
     def getBoard(self) -> list:
         return deepcopy(self.__board)
