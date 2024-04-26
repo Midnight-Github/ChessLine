@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-class MainPageStructure(ctk.CTkFrame):
+class MenuPage(ctk.CTkFrame):
     def __init__(self, root, heading: str) -> None:
         super().__init__(root, fg_color="transparent")
 

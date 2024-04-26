@@ -7,6 +7,7 @@ from ui.Profile import Profile
 from ui.OfflineNewGame import OfflineNewGame
 from ui.OfflineOpenGame import OfflineOpenGame
 from ui.OfflineCreateGame import OfflineCreateGame
+from ui.Guide import Guide
 from var.Globals import configurator
 
 class Manager(ctk.CTk):
@@ -15,7 +16,7 @@ class Manager(ctk.CTk):
 
         self.commitConfigurator()
 
-        self.main_pages = (Profile, Setting, Home)
+        self.main_pages = (Profile, Setting, Home, Guide)
         self.home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
         self.pages = self.main_pages + self.home
 

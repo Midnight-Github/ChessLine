@@ -1,9 +1,9 @@
 import tkinter as tk
 from typing import Callable
 import customtkinter as ctk
-from ui.MainPageStructure import MainPageStructure
+from framework.MenuPage import MenuPage
 
-class Home(MainPageStructure):
+class Home(MenuPage):
     def __init__(self, root) -> None:
         super().__init__(root, heading="Home")
         self.root = root
