@@ -4,9 +4,9 @@ from ui.Menu import Menu
 from ui.Setting import Setting
 from ui.Home import Home
 from ui.Profile import Profile
-from ui.OfflineNewGame import OfflineNewGame
-from ui.OfflineOpenGame import OfflineOpenGame
-from ui.OfflineCreateGame import OfflineCreateGame
+from home.OfflineNewGame import OfflineNewGame
+from home.OfflineOpenGame import OfflineOpenGame
+from home.OfflineCreateGame import OfflineCreateGame
 from ui.Guide import Guide
 from var.Globals import configurator
 
