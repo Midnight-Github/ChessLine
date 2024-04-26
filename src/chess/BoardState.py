@@ -1,7 +1,7 @@
 from chess.Errors import *
 from chess.VerifyMove import VerifyMove
 from chess.Piece import Piece
-from copy import copy, deepcopy
+from copy import deepcopy
 
 class BoardState:
     def __init__(self) -> None:

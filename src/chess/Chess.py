@@ -10,11 +10,12 @@ from chess.Timer import Timer
 from CTkMessagebox import CTkMessagebox
 
 class Chess: # convention: 0 -> white, 1 -> black
-    def __init__(self, board_frame, update_root: Callable, face: str='w', name: tuple[str, str]=('', ''), 
+    def __init__(self, board_frame, update_root: Callable, move_history:tk.StringVar | None=None, face: str='w', name: tuple[str, str]=('', ''), 
         timer: tuple[int, int]=(600, 600), animation_speed: int=1) -> None:
 
         self.board_frame = board_frame
         self.update_root = update_root
+        self.move_history = move_history
         self.face = face
         self.name = (name[0] + " (White)", name[1] + " (Black)")
         self.display_timer = (tk.StringVar(value=self.formatTime(timer[0])),
@@ -56,6 +57,7 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.king_threats = list()
         self.highlight_pos = list((None, None))
         self.preview_pos = list()
+        self.move_pair_len = 0
 
     def setUpTimer(self) -> None:
         self.timer[0].stopTimer()
@@ -163,6 +165,26 @@ class Chess: # convention: 0 -> white, 1 -> black
         
         CTkMessagebox(title="Game over", message=msg, icon="info", option_1="Ok")
 
+    def indexToChessCoords(self, index:int) -> str:
+        x = index%8
+        y = index//8
+        return chr(x + 97) + str(8 - y)
+
+    def updateMoveHistory(self, start_pos:int, end_pos:int) -> None:
+        if self.move_history is None:
+            return
+
+        move = self.indexToChessCoords(start_pos) + self.indexToChessCoords(end_pos)
+
+        move_collection = self.move_history.get()
+        if self.getTurn() == 'B':
+            move_collection += f"{self.move_pair_len + 1}. {move}"
+        else:
+            move_collection += f" + {move}\n"
+            self.move_pair_len += 1
+
+        self.move_history.set(move_collection)
+
     def boardPressEvent(self, e) -> None:
         if not self.running:
             return 
@@ -186,6 +208,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 threat_drawable = True
                 self.select = False
             except Checkmate:
+                self.updateMoveHistory(self.select, index)
                 self.highlight_pos = [self.select, index]
                 self.king_threats = self.board_state.getKingThreats(self.getAntiTurn())
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
@@ -195,6 +218,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 self.select = False
                 piece_drawable = True
             except Stalemate:
+                self.updateMoveHistory(self.select, index)
                 self.highlight_pos = [self.select, index]
                 self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
                 threat_drawable = True
@@ -204,6 +228,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 piece_drawable = True
             else:
                 # self.animate(self.select, index)
+                self.updateMoveHistory(self.select, index)
                 self.highlight_pos = [self.select, index]
                 piece_drawable = True
                 self.select = False

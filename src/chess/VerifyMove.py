@@ -175,7 +175,7 @@ class VerifyMove:
                 moves.append(end_pos)
         return moves
 
-    def __enpassant(self, pos: int, col: str, prev_end_pos: int) -> list:
+    def __enpassant(self, pos: int, col: str, prev_end_pos: int) -> list: # fix it
         if not(24 <= pos <= 31 or 32 <= pos <= 39):
             return []
 
