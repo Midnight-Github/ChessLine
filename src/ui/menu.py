@@ -35,6 +35,7 @@ class Menu(ctk.CTkFrame):
         self.home_button.configure(state='normal')
         self.settings_button.configure(state='normal')
         self.profile_button.configure(state='normal')
+        self.guide_button.configure(state='normal')
 
         match(button):
             case "Home":
@@ -42,4 +43,6 @@ class Menu(ctk.CTkFrame):
             case "Setting":
                 self.settings_button.configure(state='disabled')
             case "Profile":
-                self.profile_button.configure(state='disabled')        
+                self.profile_button.configure(state='disabled') 
+            case "Guide":
+                self.guide_button.configure(state='disabled')
