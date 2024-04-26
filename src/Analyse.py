@@ -1,12 +1,12 @@
 import os
-from typing import Sequence
+from typing import Callable, Sequence, Iterator
 import re
 
-def getLine(path):
+def getLine(path:str) -> Iterator[str]:
     with open(path, 'r', encoding='utf-8') as f:
         yield from f
 
-def totalLines(func):
+def totalLines(func:Callable) -> Callable:
     lines = dict.fromkeys(range(0, 128), 0)
     def wrapper(*args, **kwargs):
         sub_total_lines, indent = func(*args, **kwargs)
