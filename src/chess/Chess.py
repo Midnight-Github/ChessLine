@@ -11,7 +11,7 @@ from CTkMessagebox import CTkMessagebox
 
 class Chess: # convention: 0 -> white, 1 -> black
     def __init__(self, board_frame, update_root: Callable, move_history:tk.StringVar | None=None, face: str='w', name: tuple[str, str]=('', ''), 
-        timer: tuple[int, int]=(600, 600), animation_speed: int=1) -> None:
+        timer: tuple[int, int]=(600, 600)) -> None:
 
         self.board_frame = board_frame
         self.update_root = update_root
@@ -21,7 +21,6 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.display_timer = (tk.StringVar(value=self.formatTime(timer[0])),
             tk.StringVar(value=self.formatTime(timer[1]))
         )
-        self.animation_speed = animation_speed # get from configurator
         
         self.configurator = configurator
         self.board_state = BoardState()
@@ -136,16 +135,6 @@ class Chess: # convention: 0 -> white, 1 -> black
 
     def getIndex(self, x: int, y: int) -> int:
         return (8*y + x)
-
-    def animate(self, initial: int, final: int) -> None:
-        if initial == final:
-            return
-        # self.board_canvas.move(self.prev_board_piece_info[0], 60, 0)
-        # print(initial, final)
-        # print(type(self.prev_board_piece_info[0]))
-        # time.sleep(5)
-        # self.board_canvas.move(initial - 60, final)
-        # self.board_canvas.after(50, self.animate(initial - self.animation_speed, final))
     
     def getTurn(self) -> str:
         return 'W' if self.board_state.turn else 'B'
@@ -237,7 +226,6 @@ class Chess: # convention: 0 -> white, 1 -> black
                 self.select = False
                 piece_drawable = True
             else:
-                # self.animate(self.select, index)
                 self.updateMoveHistory(self.select, index)
                 self.highlight_pos = [self.select, index]
                 piece_drawable = True

@@ -186,7 +186,8 @@ class VerifyMove:
             ]
             for i in possible_pos:
                 kill_pos = i + 8
-                if self.board[kill_pos].col == 'N':
+
+                if self.board[kill_pos].name != 'P':
                     continue
 
                 if self.board[kill_pos].moved_again or prev_end_pos != kill_pos:
@@ -201,7 +202,8 @@ class VerifyMove:
             ]
             for i in possible_pos:
                 kill_pos = i - 8
-                if self.board[kill_pos].col == 'N':
+
+                if self.board[kill_pos].name != 'P':
                     continue
 
                 if self.board[kill_pos].moved_again or prev_end_pos != kill_pos:
