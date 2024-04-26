@@ -15,23 +15,26 @@ class OfflineNewGame(ctk.CTkFrame):
         self.side_bar.grid(row=0, column=1, sticky="news")
         self.side_bar.grid_rowconfigure(1, weight=1)
 
-        self.quit_button = ctk.CTkButton(self.side_bar, text="Quit", command=self.quitFrame)
-        self.quit_button.grid(row=0, column=0, padx=(10, 0), pady=10, sticky="nesw")
-
-        self.refresh_button = ctk.CTkButton(self.side_bar, text="Refresh", command=self.updateBoard)
-        self.refresh_button.grid(row=0, column=1, padx=(10, 10), pady=10, sticky="nesw")
+        self.board_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.board_frame.grid(row=0, column=0, sticky="nesw")
+        self.board_frame.bind("<Configure>", lambda e: self.chess.updateGame())
 
         self.setUpMoveHistory()
 
-        self.board_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.board_frame.grid(row=0, column=0, sticky="nesw")
-        self.board_frame.bind("<Configure>", lambda e: self.updateBoard())
-
         self.chess = Chess(self.board_frame, self.root.update_idletasks, move_history=self.moves)
+
+        self.quit_button = ctk.CTkButton(self.side_bar, text="Quit", width=30, command=self.quitFrame)
+        self.quit_button.grid(row=0, column=0, padx=(10, 0), pady=10, sticky="nesw")
+
+        self.refresh_button = ctk.CTkButton(self.side_bar, text="Refresh", width=30, command=self.chess.updateGame)
+        self.refresh_button.grid(row=0, column=1, padx=(10, 10), pady=10, sticky="nesw")
+
+        self.pause_button = ctk.CTkButton(self.side_bar, text="Pause", width=30, command=self.togglePause)
+        self.pause_button.grid(row=0, column=2, padx=(0, 10), pady=10, sticky="nesw")
 
     def setUpMoveHistory(self):
         self.moves_frame = ctk.CTkFrame(self.side_bar)
-        self.moves_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nesw")
+        self.moves_frame.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nesw")
         self.moves_frame.grid_rowconfigure(1, weight=1)
         self.moves_frame.grid_columnconfigure(0, weight=1)
 
@@ -58,5 +61,9 @@ class OfflineNewGame(ctk.CTkFrame):
             self.root.deleteFrame("OfflineNewGame")
             self.root.showFrame("Home")
 
-    def updateBoard(self) -> None:
-        self.chess.updateGame()
+    def togglePause(self) -> None:
+        self.chess.togglePause()
+        if self.chess.paused:
+            self.pause_button.configure(text="Unpause")
+        else:
+            self.pause_button.configure(text="Pause")

@@ -54,6 +54,7 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.black_timer_running = False
         self.select = False
         self.running = True
+        self.paused = False
         self.king_threats = list()
         self.highlight_pos = list((None, None))
         self.preview_pos = list()
@@ -184,6 +185,15 @@ class Chess: # convention: 0 -> white, 1 -> black
             self.move_pair_len += 1
 
         self.move_history.set(move_collection)
+
+    def togglePause(self) -> None:
+        self.running = not self.running
+        self.paused = not self.paused
+        if self.running:
+            self.updateTimer()
+        else:
+            self.timer[0].stopTimer()
+            self.timer[1].stopTimer()
 
     def boardPressEvent(self, e) -> None:
         if not self.running:
