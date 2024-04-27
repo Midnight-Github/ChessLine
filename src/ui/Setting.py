@@ -1,10 +1,10 @@
 import customtkinter as ctk
 from utils import CtkAddon as ctka
-from framework.MenuPage import MenuPage
+from framework.MainPage import MainPage
 from var.Globals import configurator
 from CTkMessagebox import CTkMessagebox
 
-class Setting(MenuPage):
+class Setting(MainPage):
     def __init__(self, root) -> None:
         super().__init__(root, heading="Settings")
 
