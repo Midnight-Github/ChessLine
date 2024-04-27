@@ -1,7 +1,7 @@
 import customtkinter as ctk
-from framework.MenuPage import MenuPage
+from framework.MainPage import MainPage
 
-class Guide(MenuPage):
+class Guide(MainPage):
     def __init__(self, root) -> None:
         super().__init__(root, heading="Guide")
 
