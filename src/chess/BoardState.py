@@ -122,9 +122,11 @@ class BoardState:
 
         if check_move.check(self.getKingPos(opp_col), opp_col):
             if self.__stalemate(opp_col):
+                self.turn = not self.turn
                 raise Checkmate('White' if col == 'W' else 'Black')
 
         if self.__stalemate(opp_col):
+            self.turn = not self.turn
             raise Stalemate
 
         self.__prev_end_pos = end_pos

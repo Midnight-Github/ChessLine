@@ -194,32 +194,31 @@ class Chess: # convention: 0 -> white, 1 -> black
         piece_drawable = False
         preview_drawable = False
         threat_drawable = False
-        turn = self.getTurn() 
 
-        if self.select is not False and self.board[index].col != turn:
+        if self.select is not False and self.board[index].col != self.getTurn():
             try:
                 self.board_state.push(self.select, index)
             except InvalidMove:
-                self.select = index if self.board[index].name not in ('E', turn) else False
+                self.select = index if self.board[index].name not in ('E', self.getTurn()) else False
             except Check:
-                self.king_threats = self.board_state.getNewKingThreats(self.select, index, turn)
-                self.king_threats.append(self.board_state.getKingPos(turn))
+                self.king_threats = self.board_state.getNewKingThreats(self.select, index, self.getTurn())
+                self.king_threats.append(self.board_state.getKingPos(self.getTurn()))
                 threat_drawable = True
                 self.select = False
             except Checkmate:
                 self.updateMoveHistory(self.select, index)
                 self.highlight_pos = [self.select, index]
-                self.king_threats = self.board_state.getKingThreats(self.getAntiTurn())
-                self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
+                self.king_threats = self.board_state.getKingThreats(self.getTurn())
+                self.king_threats.append(self.board_state.getKingPos(self.getTurn()))
                 threat_drawable = True
                 terminate_game = True
-                self.displayWinner(turn, "Checkmate!")
+                self.displayWinner(self.getAntiTurn(), "Checkmate!")
                 self.select = False
                 piece_drawable = True
             except Stalemate:
                 self.updateMoveHistory(self.select, index)
                 self.highlight_pos = [self.select, index]
-                self.king_threats.append(self.board_state.getKingPos(self.getAntiTurn()))
+                self.king_threats.append(self.board_state.getKingPos(self.getTurn()))
                 threat_drawable = True
                 terminate_game = True
                 self.displayWinner('N')
@@ -388,7 +387,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 fill="#363636",
                 tags="preview"
             )
-        elif self.board[board_index].col == 'B' if self.board_state.turn else 'W':
+        elif self.board[board_index].col == self.getAntiTurn():
             r = box_size/2.2
             self.board_canvas.create_oval(
                 x*(box_size) + box_size/2 - r,

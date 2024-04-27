@@ -1,6 +1,6 @@
 [appearance]
 system_theme = "system"
-color_theme = "blue"
+color_theme = "dark-blue"
 
 [board]
 color = "Green"
