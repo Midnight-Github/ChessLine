@@ -11,11 +11,11 @@ class OfflineNewGame(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self.side_bar = ctk.CTkFrame(self, corner_radius=0)
+        self.side_bar = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.side_bar.grid(row=0, column=1, sticky="news")
         self.side_bar.grid_rowconfigure(1, weight=1)
 
-        self.board_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.board_frame = ctk.CTkFrame(self, corner_radius=0)
         self.board_frame.grid(row=0, column=0, sticky="nesw")
         self.board_frame.bind("<Configure>", lambda e: self.chess.updateGame())
 
@@ -62,8 +62,9 @@ class OfflineNewGame(ctk.CTkFrame):
             self.root.showFrame("Home")
 
     def togglePause(self) -> None:
-        self.chess.togglePause()
         if self.chess.paused:
-            self.pause_button.configure(text="Unpause")
-        else:
+            self.chess.unpause()
             self.pause_button.configure(text="Pause")
+        else:
+            self.chess.pause()
+            self.pause_button.configure(text="Unpause")

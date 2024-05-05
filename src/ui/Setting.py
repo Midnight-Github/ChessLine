@@ -127,7 +127,7 @@ class Setting(MainPage):
     def save(self) -> None:
         if self.checkRestartRequired():
             warning_popup = CTkMessagebox(title="Unsaved changes", 
-                message="Some changes require a restart.\nClose the app?", icon="info", option_1="No", 
+                message="Some changes require a restart.\nClose the app?", icon="warning", option_1="No", 
                 option_2="Yes"
             )
             if warning_popup.get() == "Yes":

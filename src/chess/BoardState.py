@@ -1,11 +1,13 @@
+from typing import Callable
 from chess.Errors import *
 from chess.VerifyMove import VerifyMove
 from chess.Piece import Piece
 from copy import deepcopy
 
 class BoardState:
-    def __init__(self) -> None:
+    def __init__(self, promoInputHandler:Callable) -> None:
         self.turn = True
+        self.getPromoInput = promoInputHandler
 
         self.__board = [Piece('E', 'N')]*64
         self.__board[0] = Piece('R', 'B')
@@ -37,7 +39,7 @@ class BoardState:
         self.__prev_end_pos = None
             
     def restart(self) -> None:
-        self.__init__()
+        self.__init__(self.getPromoInput)
 
     def preview(self, pos: int) -> list:
         if self.__board[pos].col != ('W' if self.turn else 'B'): 
@@ -64,9 +66,7 @@ class BoardState:
             if pseudo:
                 promo = 'Z'
             else:
-                promo = input("Promote to: ").upper() # add ui to select promotion piece
-                if promo == 'K':
-                    promo = 'N'
+                promo = self.getPromoInput(end_pos)
                 if promo not in "QBNR": 
                     raise Exception("Invalid promotion input")
 

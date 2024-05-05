@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Literal
 import customtkinter as ctk
 import tkinter as tk
 from chess.BoardState import BoardState
@@ -23,7 +23,7 @@ class Chess: # convention: 0 -> white, 1 -> black
         )
         
         self.configurator = configurator
-        self.board_state = BoardState()
+        self.board_state = BoardState(promoInputHandler=self.getPromoInput)
         self.board = self.board_state.getBoard()
         self.chess_image = Image("\\..\\data\\chess_pieces.png")
         self.prev_board_piece_info = dict.fromkeys(range(0, 64))
@@ -45,6 +45,8 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.white_ui.grid_columnconfigure(1, weight=1)
         self.setWhiteUi()
 
+        self.promo_frame = ctk.CTkFrame(self.board_frame)
+
         self.timer = (Timer(timer[0], lambda i: self.display_timer[0].set(self.formatTime(i)), self.timeOutWhite),
             Timer(timer[1], lambda i: self.display_timer[1].set(self.formatTime(i)), self.timeOutBlack)
         )
@@ -58,6 +60,14 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.highlight_pos = list((None, None))
         self.preview_pos = list()
         self.move_pair_len = 0
+
+    def getPromoInput(self, end_pos:int) -> Literal['Q', 'B', 'N', 'R']: # fix it
+        while True:
+            piece = input("Q, B, N, R: ").upper()
+            if piece in ('Q', 'B', 'N', 'R'):
+                break
+            print("Invalid!")
+        return piece
 
     def setUpTimer(self) -> None:
         self.timer[0].stopTimer()
@@ -129,20 +139,20 @@ class Chess: # convention: 0 -> white, 1 -> black
         return min(self.board_frame.winfo_height() - self.black_ui.winfo_height() - self.white_ui.winfo_height() - 60, 
             self.board_frame.winfo_width() - 20)
 
-    def getPos(self, x: float, y: float) -> tuple[int, int]:
+    def getCoords(self, x: float, y: float) -> tuple[int, int]:
         box_size = (self.getBoardSize())/8
         return (floor((x + box_size)/box_size) - 1, floor((y + box_size)/box_size) - 1)
 
     def getIndex(self, x: int, y: int) -> int:
         return (8*y + x)
     
-    def getTurn(self) -> str:
+    def getTurn(self) -> Literal['W', 'B']:
         return 'W' if self.board_state.turn else 'B'
     
-    def getAntiTurn(self) -> str:
+    def getAntiTurn(self) -> Literal['W', 'B']:
         return 'B' if self.board_state.turn else 'W'
 
-    def displayWinner(self, winner:str, reason:str='') -> None:
+    def displayWinner(self, winner:Literal['W', 'B', 'N'], reason:str='') -> None:
         match(winner):
             case 'N':
                 msg = "Stalemate!\n"
@@ -175,20 +185,20 @@ class Chess: # convention: 0 -> white, 1 -> black
 
         self.move_history.set(move_collection)
 
-    def togglePause(self) -> None:
-        self.running = not self.running
-        self.paused = not self.paused
-        if self.running:
-            self.updateTimer()
-        else:
-            self.timer[0].stopTimer()
-            self.timer[1].stopTimer()
+    def pause(self) -> None:
+        self.paused = True
+        self.timer[0].stopTimer()
+        self.timer[1].stopTimer()
+    
+    def unpause(self) -> None:
+        self.paused = False
+        self.updateTimer()
 
     def boardPressEvent(self, e) -> None:
-        if not self.running:
+        if not self.running or self.paused:
             return 
 
-        x, y = self.getPos(e.x, e.y)
+        x, y = self.getCoords(e.x, e.y)
         index = self.getIndex(x, y)
         terminate_game = False
         piece_drawable = False
@@ -306,7 +316,7 @@ class Chess: # convention: 0 -> white, 1 -> black
             x*box_size + box_size, 
             y*box_size + box_size,
             fill=box_colors[(x + y)%2],
-            width=1,
+            width=0,
             tags="board"
         )
 
@@ -341,7 +351,7 @@ class Chess: # convention: 0 -> white, 1 -> black
             return
         
         piece_info = self.board[board_index].col + self.board[board_index].name
-        if self.prev_board_piece_info[board_index] != piece_info or board_index in self.king_threats: # not working
+        if self.prev_board_piece_info[board_index] != piece_info or board_index in (self.king_threats + self.preview_pos):
             self.board_canvas.delete("#" + str(board_index))
             self.board_canvas.create_image(
                 x*box_size + box_size/14,
@@ -360,10 +370,11 @@ class Chess: # convention: 0 -> white, 1 -> black
 
         if board_index in self.highlight_pos:
             self.board_canvas.create_rectangle( 
-                x*box_size, 
-                y*box_size, 
-                x*box_size + box_size, 
+                x*box_size,
+                y*box_size,
+                x*box_size + box_size,
                 y*box_size + box_size,
+                width=0.5,
                 fill="yellow",
                 tags="highlight"
             )
@@ -411,6 +422,7 @@ class Chess: # convention: 0 -> white, 1 -> black
                 y*box_size + box_size/15, 
                 x*box_size + box_size - box_size/15, 
                 y*box_size + box_size - box_size/15,
+                width=0,
                 fill="red",
                 tags="threat"
             )
@@ -425,4 +437,3 @@ class Chess: # convention: 0 -> white, 1 -> black
         self.updateChessPieceImage()
         self.clearCanvas()
         self.draw(self.drawBoard, self.drawHighlight, self.drawThreats, self.drawPieces, self.drawPreview)
-        

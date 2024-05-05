@@ -49,7 +49,7 @@ class Manager(ctk.CTk):
 
         self.showFrame("Home")
 
-    def commitConfigurator(self) -> None:
+    def extractConfigurator(self) -> None:
         ctk.set_appearance_mode(configurator.config["appearance"]["system_theme"])
         ctk.set_default_color_theme(configurator.config["appearance"]["color_theme"])
 
