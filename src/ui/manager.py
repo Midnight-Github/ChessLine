@@ -14,7 +14,7 @@ class Manager(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
 
-        self.commitConfigurator()
+        self.extractConfigurator()
 
         self.main_pages = (Profile, Setting, Home, Guide)
         self.home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
