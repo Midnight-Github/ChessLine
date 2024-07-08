@@ -3,11 +3,8 @@ import customtkinter as ctk
 from ui.Menu import Menu
 from ui.Setting import Setting
 from ui.Home import Home
-from ui.Profile import Profile
-from home.OfflineNewGame import OfflineNewGame
-from home.OfflineOpenGame import OfflineOpenGame
-from home.OfflineCreateGame import OfflineCreateGame
-from ui.Guide import Guide
+from ui.NewGame import NewGame
+from ui.OpenGame import OpenGame
 from var.Globals import configurator
 
 class Manager(ctk.CTk):
@@ -16,8 +13,8 @@ class Manager(ctk.CTk):
 
         self.extractConfigurator()
 
-        self.main_pages = (Profile, Setting, Home, Guide)
-        self.home = (OfflineNewGame, OfflineOpenGame, OfflineCreateGame)
+        self.main_pages = (Setting, Home)
+        self.home = (NewGame, OpenGame)
         self.pages = self.main_pages + self.home
 
         self.active_pages = {}

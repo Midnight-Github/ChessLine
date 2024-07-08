@@ -3,7 +3,7 @@ from CTkMessagebox import CTkMessagebox
 from chess.Chess import Chess
 import tkinter as tk
 
-class OfflineNewGame(ctk.CTkFrame):
+class NewGame(ctk.CTkFrame):
     def __init__(self, root) -> None:
         super().__init__(root, fg_color="transparent")
         self.root = root
@@ -58,7 +58,7 @@ class OfflineNewGame(ctk.CTkFrame):
         if warning_popup.get() == "Yes":
             self.chess.terminateGame()
             self.root.setActivePage("Home", "Home")
-            self.root.deleteFrame("OfflineNewGame")
+            self.root.deleteFrame("NewGame")
             self.root.showFrame("Home")
 
     def togglePause(self) -> None:
